@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="~{layout/blog}">
+<head>
+    <title th:text="${article.title} + ' - DYL博客'"></title>
+    <meta name="keywords" th:content="${article.tags}" />
+    <meta name="description" th:content="${article.overview}" />
+</head>
+<body>
+
+<div layout:fragment="main" class="col-md-12 col-lg-8 main-content">
+    <h1 class="mb-4" th:text="${article.title}"></h1>
+    <div class="post-meta">
+        <span class="category" th:text="${article.tagList[0].name}"></span>
+        <span class="mr-2" th:text="${article.createTimeStr}"></span> &bullet;
+        <span class="ml-2" th:utext="|<span class='fa fa-eye'></span>&nbsp;${article.seeCount}|"></span>
+    </div>
+    <div class="post-content-body" th:utext="${article.content}"></div>
+</div>
+
+</body>
+</html>

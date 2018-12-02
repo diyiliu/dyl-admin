@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link rel="icon" type="image/ico" th:href="@{/assets/blog/image/favicon_1.ico}">
+        <!--<link rel="stylesheet" th:href="@{/assets/css/googleapis.font.css}">-->
+        <link rel="stylesheet" th:href="@{/assets/console/css/googleapis.font.css}">
+        <link rel="stylesheet" th:href="@{/assets/blog/css/animate.css}">
+        <link rel="stylesheet" th:href="@{/assets/blog/css/owl.carousel.min.css}">
+
+        <link rel="stylesheet" th:href="@{/assets/plugin/bootstrap-4.1.3/css/bootstrap.min.css}">
+        <link rel="stylesheet" th:href="@{/assets/font/font-awesome-4.7.0/css/font-awesome.min.css}">
+        <link rel="stylesheet" th:href="@{/assets/font/ionicons/css/ionicons.min.css}">
+        <link rel="stylesheet" th:href="@{/assets/font/flaticon/font/flaticon.css}">
+
+        <!-- Theme Style -->
+        <link rel="stylesheet" th:href="@{/assets/blog/css/style.css}">
+        <link rel="stylesheet" th:href="@{/assets/blog/css/dyl-blog.css}">
+    </head>
+
+    <body>
+        <header role="banner">
+            <div class="top-bar">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-9 social">
+                            <a href="http://www.diyiliu.cc">DYL</a>
+                        </div>
+                        <div class="col-3 search-top">
+                            <!-- <a href="#"><span class="fa fa-search"></span></a> -->
+                            <form action="#" class="search-top-form">
+                                <span class="icon fa fa-search"></span>
+                                <input type="text" id="search" placeholder="搜索 ">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container logo-wrap">
+                <div class="row pt-5">
+                    <div class="col-12 text-center">
+                        <a class="absolute-toggle d-block d-md-none" data-toggle="collapse" href="#navbarMenu" role="button" aria-expanded="false" aria-controls="navbarMenu"><span class="burger-lines"></span></a>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="navbar navbar-expand-md  navbar-light bg-light">
+                <div class="container">
+                    <div class="collapse navbar-collapse" id="navbarMenu">
+                        <ul class="navbar-nav mx-auto">
+                            <li th:each="clz: ${classifys}" class="nav-item" th:classappend="${clz.children != null? 'dropdown': ''}">
+                                <a th:if="${clz.children == null}" class="nav-link" th:classappend="${clz.id == active? 'active': ''}"
+                                   th:href="@{/classify/{id}(id = ${clz.id})}" th:text="${clz.name}"></a>
+
+                                <a th:if="${clz.children != null}" class="nav-link dropdown-toggle" th:classappend="${clz.id == active? 'active': ''}"
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" th:id="dropdown + ${clz.id}" th:text="${clz.name}"></a>
+
+                                <div th:if="${clz.children != null}"  class="dropdown-menu" aria-labelledby="dropdown04">
+                                    <a th:each="a: ${clz.children}" class="dropdown-item"  th:href="@{/classify/{id}(id = ${a.id})}" th:text="${a.name}"></a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <!-- END header -->
+
+        <section layout:fragment="slider"></section>
+        <section class="site-section">
+            <div class="container">
+                <div  layout:fragment="title"></div>
+                <div class="row blog-entries">
+                    <div layout:fragment="main"></div>
+                    <!-- END main-content -->
+
+                    <div class="col-md-12 col-lg-4 sidebar">
+                        <!-- END sidebar-box -->
+                        <div class="sidebar-box">
+                            <div class="bio text-center">
+                                <img th:src="@{/assets/blog/image/person_0.jpg}" alt="Image Placeholder" class="img-fluid">
+                                <div class="bio-body">
+                                    <h2>DYL(帝一流)</h2>
+                                    <p>
+                                        程序员一枚<br>
+                                        喜欢代码, 热爱程序
+                                    </p>
+                                    <p><a href="javascript: void(0);" class="btn btn-primary btn-sm">个人简历</a></p>
+                                    <div class="social">
+                                        <a href="https://www.github.com/diyiliu" target="_blank" class="p-2"><span class="fa fa-github"></span></a>
+                                        <a href="javascript: void(0);" class="p-2" id="wechat" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fa fa-wechat"></span></a>
+                                        <div class="dropdown-menu" aria-labelledby="wechat">
+                                            <div class="myWechat"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END sidebar-box -->
+                        <div class="sidebar-box">
+                            <h3 class="heading">推荐</h3>
+                            <div class="post-entry-sidebar">
+                                <ul>
+                                    <li th:each="item: ${tops}">
+                                        <a th:href="@{/article/{id}(id = ${item.id})}" target="_blank">
+                                            <img th:src="@{/image/pic/2018/{img}(img = ${item.resImg})}" alt="Image placeholder" class="mr-4">
+                                            <div class="text">
+                                                <h4 th:text="${item.title}"></h4>
+                                                <div class="post-meta">
+                                                    <span class="mr-2" th:text="${item.createTimeStr}"></span> &bullet;
+                                                    <span class="ml-2" th:utext="|<span class='fa fa-eye'></span>&nbsp;${item.seeCount}|"></span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- END sidebar-box -->
+
+                        <div class="sidebar-box">
+                            <h3 class="heading">分类</h3>
+                            <ul class="categories">
+                                <li th:each="clz: ${classifys}" th:if="${clz.type == 1}">
+                                    <a th:href="@{/classify/{id}(id = ${clz.id})}" th:utext="|${clz.name}<span>(${clz.count})</span>|"></a>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- END sidebar-box -->
+
+                        <div class="sidebar-box">
+                            <h3 class="heading">标签</h3>
+                            <ul class="tags">
+                                <li th:each="tag: ${tags}">
+                                    <a th:href="@{/tag/{name}(name = ${tag})}" th:text="${tag}"></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- END sidebar -->
+                </div>
+            </div>
+        </section>
+
+        <footer class="site-footer">
+            <div class="container">
+                <div class="row mb-5">
+                    <div class="col-md-6">
+                        <h3>赞赏</h3>
+                        <div class="pay">
+                            <div class="img" th:style="'background-image: url(' + @{/assets/blog/image/pay_wx.jpg} + ');'"></div>
+                            <div class="img" th:style="'background-image: url(' + @{/assets/blog/image/pay_zfb.jpg} + ');'"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 ml-auto">
+                        <div class="row">
+                            <div class="col-md-7">
+                                <h3>热门</h3>
+                                <div class="post-entry-sidebar">
+                                    <ul>
+                                        <li th:each="item: ${hots}">
+                                            <a th:href="@{/article/{id}(id = ${item.id})}" target="_blank">
+                                                <img th:src="@{/image/pic/2018/{img}(img = ${item.resImg})}" alt="Image placeholder" class="mr-4">
+                                                <div class="text">
+                                                    <h4 th:text="${item.title}"></h4>
+                                                    <div class="post-meta">
+                                                        <span class="mr-2" th:text="${item.createTimeStr}"></span> &bullet;
+                                                        <span class="ml-2" th:utext="|<span class='fa fa-eye'></span>&nbsp;${item.seeCount}|"></span>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-1"></div>
+
+                            <div class="col-md-4">
+                                <div class="mb-5">
+                                    <h3>友链</h3>
+                                    <ul class="list-unstyled footer-social">
+                                        <li><a href="http://hao.diyiliu.cc" target="_blank">程序员导航</a></li>
+                                        <li><a href="http://www.dyltool.com" target="_blank">开发者工具</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                        Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This site is made with  by <a href="http://diyiliu.cc" target="_blank">帝一流</a>
+                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- END footer -->
+
+        <!-- loader -->
+        <div id="loader" class="fullscreen">
+            <svg class="circular" width="48px" height="48px">
+                <circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/>
+                <circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#f4b214"/>
+            </svg>
+        </div>
+
+        <script th:src="@{/assets/blog/js/jquery-3.2.1.min.js}"></script>
+        <script th:src="@{/assets/blog/js/popper.min.js}"></script>
+        <script th:src="@{/assets/blog/js/jquery-migrate-3.0.0.js}"></script>
+        <script th:src="@{/assets/blog/js/jquery.waypoints.min.js}"></script>
+        <script th:src="@{/assets/blog/js/jquery.stellar.min.js}"></script>
+        <script th:src="@{/assets/blog/js/owl.carousel.min.js}"></script>
+        <script th:src="@{/assets/plugin/bootstrap-4.1.3/js/bootstrap.min.js}"></script>
+        <script th:src="@{/assets/plugin/layui/layui.all.js}"></script>
+        <script th:src="@{/assets/blog/js/main.js}"></script>
+        <div layout:fragment="pageJs"></div>
+    </body>
+</html>

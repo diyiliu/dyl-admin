@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="~{layout/console}">
+<head>
+    <title>帝一流博客 - 后台管理</title>
+    <style>
+        body::-webkit-scrollbar {
+            display:none
+        }
+    </style>
+</head>
+
+<body>
+<div layout:fragment="breadcrumb">
+    <a class="navbar-brand" href="javascript: void(0);">文章编辑</a>
+</div>
+
+<div layout:fragment="container" class="container-fluid">
+    <div class="row">
+            <div class="col-md-8">
+                <div class="card ">
+                    <div class="card-header card-header-rose card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">edit</i>
+                        </div>
+                        <h4 class="card-title">编辑</h4>
+                    </div>
+                    <div class="card-body ">
+                        <form th:object="${article}">
+                            <div class="form-group">
+                                <label for="title" class="bmd-label-floating">标题</label>
+                                <input type="text" class="form-control" id="title" th:field="${article.title}">
+                            </div>
+                            <div class="form-group">
+                                <textarea id="ckeditor" th:field="${article.content}" th:utext="${article.content}"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card ">
+                    <div class="card-header card-header-rose card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">category</i>
+                        </div>
+                        <h4 class="card-title">类别</h4>
+                    </div>
+                    <div class="card-body ">
+                        <form class="form-horizontal" id="myForm" th:object="${article}">
+                            <input type="hidden" id="id" th:field="${article.id}">
+                            <div class="row">
+                                <label class="col-md-2 col-form-label">所属分类</label>
+                                <div class="col-md-10">
+                                    <select class="selectpicker form-control"
+                                            data-style="select-with-transition"
+                                            title="选择分类" data-size="5" th:field="${article.classify.id}">
+                                        <option th:each="clz: ${classifys}" th:value="${clz.id}" th:text="${clz.name}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label class="col-md-2 col-form-label">文章类型</label>
+                                <div class="col-md-10">
+                                    <select class="selectpicker form-control"
+                                            data-style="select-with-transition"
+                                            title="选择类型" data-size="5" th:field="${article.type}">
+                                        <option value="1">原创</option>
+                                        <option value="2">转载</option>
+                                        <option value="3">其他</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label class="col-md-2 col-form-label">内容标签</label>
+                                <div class="col-md-10">
+                                    <div class="form-group tags" style="padding-bottom: 0;border-bottom: 1px solid #d2d2d2;">
+                                        <input type="text" class="form-control tagsinput"
+                                               data-role="tagsinput" data-color="info" th:field="${article.tags}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <label class="col-md-2 col-form-label">公开</label>
+                                    <div class="col-md-10">
+                                        <div class="form-group togglebutton">
+                                            <label>
+                                                <input type="checkbox" th:checked="${article.id == null || article.open == 1}"  value="1" name="open">
+                                                <span class="toggle"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="col-md-2 col-form-label">置顶</label>
+                                    <div class="col-md-10">
+                                        <div class="form-group togglebutton">
+                                            <label>
+                                                <input type="checkbox" th:checked="${article.isTop == 1}"  value="1" name="isTop">
+                                                <span class="toggle"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer ">
+                        <div class="row">
+                            <div class="col-12 form-group" th:if="${article.id == null}">
+                                <button type="button" class="btn btn-default" onclick="javascript: save(0);">保存</button>
+                                <button type="button" class="btn btn-rose" onclick="javascript: save(1);">发布</button>
+                            </div>
+
+                            <div class="col-12 form-group" th:if="${article.id != null}">
+                                <button type="button" class="btn btn-rose" th:onclick="'javascript: save(' + ${article.status} +');'">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div layout:fragment="pageJs">
+    <script th:src="@{/assets/plugin/ckeditor/ckeditor.js}"></script>
+    <script th:inline="javascript">
+
+        var editor;
+        $(function () {
+            var uploadPath = /*[[@{/ckeditor/upload/}]]*/;
+            editor = CKEDITOR.replace('ckeditor', {
+                height: 460,
+                config: './config.js',
+                uploadUrl: uploadPath,
+                filebrowserUploadUrl: uploadPath
+            });
+        });
+
+        function save(i) {
+            var markupStr = editor.getData();
+            var textStr = editor.document.getBody().getText();
+
+            var formData = new FormData($('#myForm')[0]);
+            formData.append('title', $('#title').val());
+            formData.append('status', i);
+            formData.append('content', markupStr);
+            formData.append('overview', textStr.substr(0, 50));
+            $.ajax({
+                type: 'post',
+                url: /*[[@{/console/blog/save/}]]*/,
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function(){
+                    $('.preloader').fadeIn();
+                },
+                complete: function(){
+                    $('.preloader').fadeOut();
+                },
+                success: function (result) {
+                    if (result.status == 1) {
+                        alertTip('success', '保存成功');
+                        toDo(i, result.data);
+                    } else {
+                        alertTip('error', '保存失败');
+                    }
+                },
+                error: function () {
+                    alertTip('error', '保存失败');
+                }
+            });
+        }
+
+        function toDo(i,j) {
+            var t = '保存成功';
+            if (i == 1){
+                t = '发布成功';
+            }
+            swal({
+                    title: t,
+                    text: "",
+                    type: "success",
+                    showCancelButton: true,
+                    confirmButtonColor: "#ea2c6d",
+                    confirmButtonText: "查看原文",
+                    cancelButtonText: "返回列表",
+                    closeOnConfirm: false,
+                    closeOnCancel: false
+                },
+                function(isConfirm){
+                    var path = /*[[@{/}]]*/;
+                    if (isConfirm) {
+                        path += 'article/' + j;
+                        window.open(path);
+                        swal.close();
+                    }else {
+                        path += 'console/article';
+                        window.location.href = path;
+                    }
+                });
+        }
+    </script>
+</div>
+</body>
+
+</html>

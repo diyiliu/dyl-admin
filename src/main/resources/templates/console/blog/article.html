@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="~{layout/console}">
+<head>
+    <title>帝一流博客 - 后台管理</title>
+</head>
+
+
+<body>
+<div layout:fragment="breadcrumb">
+    <a class="navbar-brand" href="javascript: void(0);">文章管理</a>
+</div>
+
+<div layout:fragment="container" class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-rose">
+                    <div class="nav-tabs-navigation">
+                        <div class="nav-tabs-wrapper">
+                            <span class="nav-tabs-title"></span>
+                            <ul class="nav nav-tabs nav-opt" data-tabs="tabs">
+                                <li class="nav-item">
+                                    <a th:href="@{/console/editor}" class="btn btn-link nav-link active">
+                                        <i class="material-icons">border_color</i> 写文章
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <button class="btn btn-link nav-link active">
+                                        <i class="material-icons">library_add</i> 栏目
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table" id="myTable"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div layout:fragment="pageJs">
+    <script th:inline="javascript">
+        $(function () {
+            DP.init();
+
+            var tableHeight = $("div.main-panel").height() - 326;
+            DP.table.init({
+                height: tableHeight,
+                url: /*[[@{/console/blog/articles}]]*/,
+                columns: [
+                    {
+                        field: 'title',
+                        title: '标题'
+                    },
+                    {
+                        field: 'type',
+                        title: '类型',
+                        formatter: function (value, row, index) {
+                            if (value ==  1) {
+                                return '原创';
+                            }
+
+                            if (value ==  2) {
+                                return '转载';
+                            }
+
+                            return '其他';
+                        }
+                    },
+                    {
+                        field: 'classify',
+                        title: '栏目',
+                        formatter: function (value, row, index) {
+                            if (value) {
+                                return value['name'];
+                            }
+
+                            return '';
+                        }
+                    },
+                    {
+                        field: 'tagList',
+                        title: '标签',
+                        formatter: function (value, row, index) {
+                            if (value) {
+                                var str = '';
+                                for (var i = 0; i < value.length; i++){
+
+                                    str += '<span class="badge badge-info">' + value[i].name + '</span>';
+                                }
+
+                                return str;
+                            }
+
+                            return '';
+                        }
+                    },
+                    {
+                        field: 'updateTime',
+                        title: '修改时间'
+                    },
+                    {
+                        field: 'seeCount',
+                        align: 'center',
+                        title: '查看人数'
+                    },
+                    {
+                        field: 'isTop',
+                        align: 'center',
+                        title: '置顶',
+                        formatter: function (value, row, index) {
+
+                            if (value == 1) {
+                                    return '<div class="td-actions"><button type="button" class="btn btn-link" ' +
+                                        'onclick="updateStatus(\'top\', 0,' + row.id + ')"><i class="material-icons text-warning">star</i></button></div>';
+                            }
+
+                            return '<div class="td-actions"><button type="button" class="btn btn-link" ' +
+                                'onclick="updateStatus(\'top\', 1, ' + row.id + ')"><i class="material-icons">not_interested</i></button></div>';
+                        }
+                    },
+                    {
+                        field: 'status',
+                        title: '状态',
+                        align: 'center',
+                        formatter: function (value, row, index) {
+                            if (value == 1) {
+                                return '<div class="td-actions"><button type="button" class="btn btn-link" ' +
+                                    'onclick="updateStatus(\'status\', 0,' + row.id + ')"><i class="material-icons text-success">toggle_on</i></button></div>';
+                            }
+
+                            return '<div class="td-actions"><button type="button" class="btn btn-link" ' +
+                                'onclick="updateStatus(\'status\', 1, ' + row.id + ')"><i class="material-icons text-danger">toggle_off</i></button></div>';
+                        }
+                    },
+                    {
+                        field: '',
+                        title: '操作',
+                        align: 'right',
+                        formatter: function (value, row, index) {
+                            var url = /*[[@{/console/blog/article/}]]*/;
+
+                            var str = '<div class="td-actions"><button onclick="editor(' + row.id + ')" ' +
+                                'class="btn btn-success btn-link" data-modal-title="修改"><i class="material-icons">edit</i></button>' +
+
+                                '<button type="button" class="btn btn-danger btn-link" onclick="DP.delLink(this)" ' +
+                                'data-url="' + url + '" data-id="' + row.id + '"><i class="material-icons">close</i></button></div>';
+                            return str;
+                        }
+                    }
+                ]
+            });
+        });
+
+        function updateStatus(i, j, k) {
+            var path = /*[[@{/console/blog/article/}]]*/;
+            $.ajax({
+                type: 'put',
+                url: path + i,
+                data: {
+                    id: k,
+                    val: j
+                },
+                dataType: "json",
+                success: function (result) {
+                    if (result == 1) {
+                        alertTip('success', '修改成功');
+                        DP.getTable().bootstrapTable("refresh");
+                    } else {
+                        alertTip('error', '修改失败');
+                    }
+                }
+            });
+        }
+
+        function editor(i) {
+            var path = /*[[@{/console/blog/editor/}]]*/;
+            $("#searchForm").attr('action', path + i);
+            $("#searchForm").attr('method', 'post');
+            $('#searchForm').submit();
+        }
+    </script>
+</div>
+</body>
+
+</html>
