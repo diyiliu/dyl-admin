@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="~{layout/console}">
+<head>
+    <title>帝一流博客 - 后台管理</title>
+    <link th:href="@{/assets/plugin/treeview/dhtmlxtreeview.css}" type="text/css" rel="stylesheet">
+</head>
+
+<body>
+<div layout:fragment="breadcrumb">
+    <a class="navbar-brand" href="javascript: void(0);">网址管理</a>
+</div>
+
+<div layout:fragment="container" class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-rose">
+                    <div class="nav-tabs-navigation">
+                        <div class="nav-tabs-wrapper">
+                            <span class="nav-tabs-title"></span>
+                            <ul class="nav nav-tabs nav-opt" data-tabs="tabs">
+                                <li class="nav-item">
+                                    <button class="btn btn-link nav-link" id="addItem" data-title="新增网址">
+                                        <i class="material-icons">add_circle_outline</i> 新增
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table" id="myTable"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">新增网址</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <form class="form-horizontal" role="form" id="userForm">
+                                <input type="hidden" id="id" name="id">
+                                <div class="row">
+                                    <label for="name" class="col-md-2  col-form-label">名称</label>
+                                    <div class="col-md-10">
+                                        <input type="text" class="form-control" id="name" name="name">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <label for="url" class="col-md-2  col-form-label">网址</label>
+                                    <div class="col-md-10">
+                                        <input type="text" class="form-control" id="url" name="url">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <label for="selRole" class="col-md-2  col-form-label">角色</label>
+                                    <div class="col-md-10">
+                                        <select class="selectpicker form-control" data-style="select-with-transition"
+                                                title="选择角色" data-size="5" id="selRole" name="roleId">
+                                            <option th:each="type:${#request.getAttribute('types')}"
+                                                    th:value="${type.id}" th:text="${type.name}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <label for="sort" class="col-md-2  col-form-label">排序</label>
+                                    <div class="col-md-10">
+                                        <input type="text" class="form-control" id="sort" name="sort">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <label for="comment" class="col-md-2  col-form-label">描述</label>
+                                    <div class="col-md-10">
+                                        <textarea class="form-control" name="comment" id="comment"></textarea>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-rose" id="saveItem"
+                                    th:attr="data-url=@{/console/nav/site}">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+    <div id="menuModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        授权角色
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <div id="menuTree" class="modal-tree"></div>
+                    <input type="hidden" name="roleId" id="roleId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-rose" id="saveMenu">保存</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+</div>
+
+<div layout:fragment="pageJs">
+    <script th:src="@{/assets/plugin/treeview/dhtmlxtreeview.min.js}"></script>
+    <script th:inline="javascript">
+        $(function () {
+            var $table = $('#myTable');
+
+            DP.init({
+                addBefore: function () {
+                    $('#id').val('');
+                    document.getElementById('url').readOnly = false;
+                },
+                editBefore: function (i) {
+                    var site = $table.bootstrapTable('getRowByUniqueId', i);
+                    // 重置表单
+                    document.getElementById('url').readOnly = true;
+
+                    $('#id').val(site['id']);
+                    $('#name').val(site['name']);
+                    $('#url').val(site['url']);
+                    $('#sort').val(site['sort']);
+                    $('#comment').val(site['comment']);
+                }
+            });
+
+            DP.table.init({
+                url: /*[[@{/console/nav/siteList}]]*/,
+                columns: [
+                    {
+                        title: '序号',
+                        formatter: function (value, row, index) {
+                            var pageSize = DP.getTable().bootstrapTable('getOptions').pageSize;
+                            var pageNumber = DP.getTable().bootstrapTable('getOptions').pageNumber;
+
+                            return pageSize * (pageNumber - 1) + index + 1;
+                        }
+                    },
+                    {
+                        field: 'name',
+                        title: '名称'
+                    },
+                    {
+                        field: 'url',
+                        title: '网址'
+                    },
+                    {
+                        field: 'siteType',
+                        title: '分组',
+                        formatter: function (value, row, index) {
+
+                            return value.name;
+                        }
+                    },
+                    {
+                        field: 'comment',
+                        title: '描述'
+                    },
+                    {
+                        field: 'image',
+                        title: '图标',
+                        align: 'center',
+                        formatter: function (value, row, index) {
+                            // 相对路径
+                            var path = /*[[@{/image/pic/2018/}]]*/;
+                            return '<img style="display: inline-block;width: 16px;height: 16px;" src=' + path + value + '>';
+                        }
+                    },
+                    {
+                        field: 'createTime',
+                        title: '创建时间',
+                        align: 'center'
+                    }
+                ]
+            });
+        });
+    </script>
+</div>
+</body>
+
+</html>

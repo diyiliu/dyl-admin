@@ -6,7 +6,7 @@ server:
 # SPRING
 spring:
   profiles:
-    active: prod
+    active: dev
 
   servlet:
     multipart:
@@ -50,4 +50,7 @@ shiro:
 
 # 文件路径
 upload:
+  user: file:./upload/user/
   pic: file:./upload/pic/
+  nav:
+    icon: file:./upload/nav/icon/

@@ -2,6 +2,7 @@ package com.dyl.admin.web.portal;
 
 import com.dyl.admin.support.model.PageData;
 import com.dyl.admin.support.model.RespBody;
+import com.dyl.admin.web.HomeController;
 import com.dyl.admin.web.console.blog.dto.Article;
 import com.dyl.admin.web.console.blog.dto.Classify;
 import com.dyl.admin.web.console.blog.dto.Tag;
@@ -9,7 +10,6 @@ import com.dyl.admin.web.console.blog.facade.ArticleJpa;
 import com.dyl.admin.web.console.blog.facade.ClassifyJpa;
 import com.dyl.admin.web.console.blog.facade.TagJpa;
 import com.dyl.admin.web.console.sys.dto.ResImg;
-import com.dyl.admin.web.console.sys.dto.SysUser;
 import com.dyl.admin.web.console.sys.facade.ResImgJpa;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -27,8 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.File;
 import java.io.IOException;
 import java.net.URLConnection;
 import java.util.*;
@@ -42,7 +40,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
-public class BlogPortalController {
+public class BlogPortalController extends HomeController {
 
     @Resource
     private Environment environment;
@@ -167,10 +165,10 @@ public class BlogPortalController {
 
     @ResponseBody
     @PostMapping("/image/upload")
-    public RespBody imgUpload(MultipartFile file, HttpSession session) throws Exception {
+    public RespBody imgUpload(MultipartFile file) throws Exception {
         RespBody respBody = new RespBody();
 
-        String imgPath = upload(file, session);
+        String imgPath = upload(file);
         if (StringUtils.isEmpty(imgPath)) {
             respBody.setStatus(0);
             respBody.setMessage("图片保存失败");
@@ -203,9 +201,9 @@ public class BlogPortalController {
 
     @ResponseBody
     @RequestMapping("/ckeditor/upload")
-    public Map editorUpload(MultipartFile upload, HttpSession session) throws Exception {
+    public Map editorUpload(MultipartFile upload) throws Exception {
         String fileName = upload.getOriginalFilename();
-        String imgPath = upload(upload, session);
+        String imgPath = upload(upload);
 
         Map respMap = new HashMap();
         respMap.put("uploaded", 1);
@@ -215,27 +213,11 @@ public class BlogPortalController {
         return respMap;
     }
 
-    private String upload(MultipartFile file, HttpSession session) throws Exception {
+    private String upload(MultipartFile file) throws Exception {
         String date = String.format("%1$tY%1$tm", new Date());
-        String picDir = environment.getProperty("upload.pic") + date + "/";
-        org.springframework.core.io.Resource resDir = new UrlResource(picDir);
-        if (!resDir.getFile().exists()) {
-            resDir.getFile().mkdir();
-        }
+        String dir = environment.getProperty("upload.pic") + date + "/";
 
-        String fileName = file.getOriginalFilename();
-        // 创建临时文件
-        File tempFile = File.createTempFile("pic", fileName.substring(fileName.lastIndexOf(".")).toLowerCase(), resDir.getFile());
-        FileCopyUtils.copy(file.getBytes(), tempFile);
-
-        SysUser user = (SysUser) session.getAttribute("user");
-        ResImg img = new ResImg();
-        img.setPath(tempFile.getPath());
-        img.setUserId(user.getId());
-        img.setCreateTime(new Date());
-        // 保存图片路径到数据库
-        img = resImgJpa.save(img);
-
+        ResImg img = uploadImg(file, dir);
         if (img != null) {
             List imgList = (List) session.getAttribute("temp_pic");
             if (imgList == null) {

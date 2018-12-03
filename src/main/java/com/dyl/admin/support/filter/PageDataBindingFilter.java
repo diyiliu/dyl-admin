@@ -2,6 +2,8 @@ package com.dyl.admin.support.filter;
 
 import com.dyl.admin.web.console.blog.dto.Classify;
 import com.dyl.admin.web.console.blog.facade.ClassifyJpa;
+import com.dyl.admin.web.console.nav.dto.SiteType;
+import com.dyl.admin.web.console.nav.facade.SiteTypeJpa;
 import com.dyl.admin.web.console.sys.dto.SysRole;
 import com.dyl.admin.web.console.sys.dto.SysUser;
 import com.dyl.admin.web.console.sys.facade.SysRoleJpa;
@@ -38,6 +40,9 @@ public class PageDataBindingFilter {
     @Resource
     private ClassifyJpa classifyJpa;
 
+    @Resource
+    private SiteTypeJpa siteTypeJpa;
+
 
     @After("execution(* com.dyl.admin.web.console.LoginController.display(..))")
     public void doAfter(JoinPoint joinPoint) {
@@ -64,6 +69,16 @@ public class PageDataBindingFilter {
         if ("editor".equals(menu)) {
             List<Classify> classifyList = classifyJpa.findByType(1, Sort.by(new String[]{"pid", "sort"}));
             request.setAttribute("classifys", classifyList);
+
+            return;
+        }
+
+        if (menu.equals("site")) {
+            List<SiteType> siteTypes = siteTypeJpa.findAll(Sort.by("sort"));
+            request.setAttribute("types", siteTypes);
+
+            List<String> names = siteTypes.stream().map(SiteType::getName).collect(Collectors.toList());
+            request.setAttribute("tNames", names);
 
             return;
         }

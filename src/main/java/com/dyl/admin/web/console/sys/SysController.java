@@ -183,7 +183,7 @@ public class SysController {
 
         Subject subject = SecurityUtils.getSubject();
         // 默认密码
-        user.setPassword("123");
+        user.setPassword("123456");
         passwordHelper.encryptPassword(user);
         user.setStatus(1);
         user.setCreateTime(new Date());
@@ -262,7 +262,7 @@ public class SysController {
     @PutMapping("/userPwd/{id}")
     public Integer resetPwd(@PathVariable("id") Long userId) {
         SysUser temp = sysUserJpa.findById(userId).get();
-        temp.setPassword("123");
+        temp.setPassword("123456");
         passwordHelper.encryptPassword(temp);
 
         temp = sysUserJpa.save(temp);
