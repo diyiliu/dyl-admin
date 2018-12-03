@@ -64,10 +64,10 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <label for="selRole" class="col-md-2  col-form-label">角色</label>
+                                    <label for="siteType" class="col-md-2  col-form-label">类别</label>
                                     <div class="col-md-10">
                                         <select class="selectpicker form-control" data-style="select-with-transition"
-                                                title="选择角色" data-size="5" id="selRole" name="roleId">
+                                                title="选择类别" data-size="5" id="siteType" name="siteType.id">
                                             <option th:each="type:${#request.getAttribute('types')}"
                                                     th:value="${type.id}" th:text="${type.name}"></option>
                                         </select>
@@ -191,7 +191,7 @@
                         align: 'center',
                         formatter: function (value, row, index) {
                             // 相对路径
-                            var path = /*[[@{/image/pic/2018/}]]*/;
+                            var path = /*[[@{/image/show/2018/}]]*/;
                             return '<img style="display: inline-block;width: 16px;height: 16px;" src=' + path + value + '>';
                         }
                     },

@@ -181,7 +181,7 @@ public class BlogPortalController extends HomeController {
     }
 
 
-    @GetMapping("/image/pic/{time}/{id}")
+    @GetMapping("/image/show/{time}/{id}")
     public void showPicture(@PathVariable long id, @PathVariable String time, HttpServletResponse response) {
         ResImg img = resImgJpa.findById(id).get();
         if (img != null) {
@@ -227,7 +227,7 @@ public class BlogPortalController extends HomeController {
             imgList.add(img);
             long time = img.getCreateTime().getTime();
 
-            return "/image/pic/" + time + "/" + img.getId();
+            return "/image/show/" + time + "/" + img.getId();
         }
 
         return null;

@@ -153,7 +153,7 @@ public class BlogController {
             for (Iterator<ResImg> iterator = imgList.iterator(); iterator.hasNext(); ) {
                 ResImg img = iterator.next();
                 long time = img.getCreateTime().getTime();
-                String path = "/image/pic/" + time + "/" + img.getId();
+                String path = "/image/show/" + time + "/" + img.getId();
 
                 if (!content.contains(path)) {
                     resImgJpa.deleteById(img.getId());

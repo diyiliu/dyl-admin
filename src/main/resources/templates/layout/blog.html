@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <link rel="icon" type="image/ico" th:href="@{/assets/blog/image/favicon_1.ico}">
+        <link rel="shortcut icon" th:href="@{/assets/blog/image/favicon_1.ico}" type="image/ico">
         <!--<link rel="stylesheet" th:href="@{/assets/css/googleapis.font.css}">-->
         <link rel="stylesheet" th:href="@{/assets/console/css/googleapis.font.css}">
         <link rel="stylesheet" th:href="@{/assets/blog/css/animate.css}">
@@ -107,7 +107,7 @@
                                 <ul>
                                     <li th:each="item: ${tops}">
                                         <a th:href="@{/article/{id}(id = ${item.id})}" target="_blank">
-                                            <img th:src="@{/image/pic/2018/{img}(img = ${item.resImg})}" alt="Image placeholder" class="mr-4">
+                                            <img th:src="@{/image/show/2018/{img}(img = ${item.resImg})}" alt="Image placeholder" class="mr-4">
                                             <div class="text">
                                                 <h4 th:text="${item.title}"></h4>
                                                 <div class="post-meta">
@@ -164,7 +164,7 @@
                                     <ul>
                                         <li th:each="item: ${hots}">
                                             <a th:href="@{/article/{id}(id = ${item.id})}" target="_blank">
-                                                <img th:src="@{/image/pic/2018/{img}(img = ${item.resImg})}" alt="Image placeholder" class="mr-4">
+                                                <img th:src="@{/image/show/2018/{img}(img = ${item.resImg})}" alt="Image placeholder" class="mr-4">
                                                 <div class="text">
                                                     <h4 th:text="${item.title}"></h4>
                                                     <div class="post-meta">

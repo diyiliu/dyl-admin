@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.util.Date;
@@ -48,12 +47,9 @@ public class HomeController {
         return  save(tempFile);
     }
 
-
     protected ResImg save(File file){
         SysUser user = (SysUser) session.getAttribute("user");
         ResImg img = new ResImg();
-
-        System.out.println(file.getPath());
 
         img.setPath(file.getPath().replaceAll("\\\\", "/"));
         img.setUserId(user.getId());
