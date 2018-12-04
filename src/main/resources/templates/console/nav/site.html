@@ -136,9 +136,10 @@
             var $table = $('#myTable');
 
             DP.init({
-                addBefore: function () {
+                saveAfter: function () {
                     $('#id').val('');
                     document.getElementById('url').readOnly = false;
+                    $('#siteType').selectpicker('refresh');
                 },
                 editBefore: function (i) {
                     var site = $table.bootstrapTable('getRowByUniqueId', i);
@@ -150,6 +151,9 @@
                     $('#url').val(site['url']);
                     $('#sort').val(site['sort']);
                     $('#comment').val(site['comment']);
+
+                    // 下拉选中
+                    $('#siteType').selectpicker('val', site.siteType['id']);
                 }
             });
 
@@ -199,6 +203,21 @@
                         field: 'createTime',
                         title: '创建时间',
                         align: 'center'
+                    },
+                    {
+                        field: '',
+                        title: '操作',
+                        align: 'right',
+                        formatter: function (value, row, index) {
+                            var url = /*[[@{/console/nav/site/}]]*/;
+
+                            var str = '<div class="td-actions"><button type="button" class="btn btn-success btn-link"  onclick="DP.editLink(' + row.id + ', this)" data-modal-title="修改网址"' +
+                                '><i class="material-icons">edit</i></button>' +
+                                '<button type="button" class="btn btn-danger btn-link" onclick="DP.delLink(this)" data-url="' + url + '" data-id="' + row.id +
+                                '"><i class="material-icons">close</i></button></div>';
+                            return str;
+                        }
+
                     }
                 ]
             });

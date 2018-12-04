@@ -2,7 +2,7 @@ package com.dyl.admin.web.portal;
 
 import com.dyl.admin.support.model.PageData;
 import com.dyl.admin.support.model.RespBody;
-import com.dyl.admin.web.HomeController;
+import com.dyl.admin.web.BaseController;
 import com.dyl.admin.web.console.blog.dto.Article;
 import com.dyl.admin.web.console.blog.dto.Classify;
 import com.dyl.admin.web.console.blog.dto.Tag;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
-public class BlogPortalController extends HomeController {
+public class BlogPortalController extends BaseController {
 
     @Resource
     private Environment environment;

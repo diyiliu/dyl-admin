@@ -153,12 +153,13 @@
             var $table = $('#myTable');
 
             DP.init({
-                addBefore: function () {
+                saveAfter: function () {
                     $('#id').val('');
                     $('#pid').val(0);
                     $('#pids').val(0);
                     $('#nodeToggle').html('');
                     $('#isMenu')[0].checked = false;
+                    $('#selType').selectpicker('refresh');
                 },
                 editBefore: function (i) {
                     var menu = $table.bootstrapTable('getRowByUniqueId', i);

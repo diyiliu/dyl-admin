@@ -1,6 +1,7 @@
 package com.dyl.admin.web.console.nav.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.util.List;
@@ -11,12 +12,12 @@ import java.util.List;
  * Update: 2017-10-19 15:18
  */
 
+@Data
 @Entity
 @Table(name = "nav_type")
 public class SiteType {
 
     public SiteType() {
-
     }
 
     public SiteType(Long id) {
@@ -41,44 +42,4 @@ public class SiteType {
     @OrderBy("sort asc")
     @OneToMany(mappedBy = "siteType")
     private List<Website> siteList;
-    
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getSort() {
-        return sort;
-    }
-
-    public void setSort(Integer sort) {
-        this.sort = sort;
-    }
-
-    public List<Website> getSiteList() {
-        return siteList;
-    }
-
-    public void setSiteList(List<Website> siteList) {
-        this.siteList = siteList;
-    }
 }

@@ -1,17 +1,15 @@
 package com.dyl.admin.web.console.nav;
 
 import com.dyl.admin.support.util.JacksonUtil;
-import com.dyl.admin.web.HomeController;
+import com.dyl.admin.web.BaseController;
 import com.dyl.admin.web.console.nav.dto.SiteType;
 import com.dyl.admin.web.console.nav.dto.Website;
 import com.dyl.admin.web.console.nav.facade.SiteTypeJpa;
 import com.dyl.admin.web.console.nav.facade.WebsiteJpa;
 import com.dyl.admin.web.console.sys.dto.ResImg;
-import com.dyl.admin.web.console.sys.facade.ResImgJpa;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,22 +41,16 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/console/nav")
-public class NavController extends HomeController {
+public class NavController extends BaseController {
 
     @Resource
     private Environment environment;
-
-    @Resource
-    private ResourceLoader resourceLoader;
 
     @Resource
     private WebsiteJpa websiteJpa;
 
     @Resource
     private SiteTypeJpa siteTypeJpa;
-
-    @Resource
-    private ResImgJpa resImgJpa;
 
 
     @PostMapping("/siteList")
@@ -185,6 +177,21 @@ public class NavController extends HomeController {
     }
 
 
+    @DeleteMapping("/site/{id}")
+    public Integer deleteSite(@PathVariable long id) throws Exception{
+        Website site = websiteJpa.findById(id).get();
+
+        // 删除图片
+        long imgId = site.getImage();
+        deleteImg(imgId);
+
+        // 删除网址
+        websiteJpa.delete(site);
+
+        return 1;
+    }
+
+
     @PutMapping("/type")
     public Integer modifySiteType(@RequestParam("typeNames") String typeNames) {
         String[] names = typeNames.split(",");
@@ -268,19 +275,6 @@ public class NavController extends HomeController {
     }
 
     /**
-     * 获取图片资源
-     *
-     * @param name
-     * @return
-     * @throws IOException
-     */
-    private org.springframework.core.io.Resource getLocalResource(String name) {
-        String path = environment.getProperty("upload.guide.icon");
-
-        return resourceLoader.getResource("file:" + path + name);
-    }
-
-    /**
      * 抓取网站图标
      *
      * @param location
@@ -302,7 +296,7 @@ public class NavController extends HomeController {
                 byte[].class);
 
         int statusCode = responseEntity.getStatusCode().value();
-        if (301 == statusCode || 302 == statusCode) {
+        if (301 == statusCode || 302 == statusCode || 308 == statusCode) {
             URI uri = responseEntity.getHeaders().getLocation();
             scheme = uri.getScheme();
             location = uri.getHost();
@@ -324,10 +318,15 @@ public class NavController extends HomeController {
                 while ((line = br.readLine()) != null) {
                     if (line.contains(".ico") || line.contains("icon")) {
                         // 取出有用的范围
-                        Pattern p = Pattern.compile(".*<link[^>]*href=\"(?<href>[^\"]*)\"[^>]*>");
+                        Pattern p = Pattern.compile("<link rel=\"[^\"]*icon\"[^>]+>");
                         Matcher m = p.matcher(line.trim());
-                        if (m.matches()) {
-                            String path = m.group(1);
+                        if (m.find()) {
+                            String path = m.group();
+                            int index = path.indexOf("href=");
+                            path = path.substring(index + 6);
+                            index = path.indexOf("\"");
+                            path = path.substring(0, index);
+
                             if (!path.contains("//")) {
                                 path = scheme + "://" + location + path;
                             }

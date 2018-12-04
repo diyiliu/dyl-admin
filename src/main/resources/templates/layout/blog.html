@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <link rel="shortcut icon" th:href="@{/assets/blog/image/favicon_1.ico}" type="image/ico">
+        <link rel="shortcut icon" th:href="@{/assets/image/favicon_1.ico}" type="image/ico">
         <!--<link rel="stylesheet" th:href="@{/assets/css/googleapis.font.css}">-->
         <link rel="stylesheet" th:href="@{/assets/console/css/googleapis.font.css}">
         <link rel="stylesheet" th:href="@{/assets/blog/css/animate.css}">
@@ -94,7 +94,7 @@
                                         <a href="https://www.github.com/diyiliu" target="_blank" class="p-2"><span class="fa fa-github"></span></a>
                                         <a href="javascript: void(0);" class="p-2" id="wechat" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fa fa-wechat"></span></a>
                                         <div class="dropdown-menu" aria-labelledby="wechat">
-                                            <div class="myWechat"></div>
+                                            <div class="myWechat" th:style="'background-image: url(' + @{/assets/blog/image/wx.jpg} + ');'"></div>
                                         </div>
                                     </div>
                                 </div>

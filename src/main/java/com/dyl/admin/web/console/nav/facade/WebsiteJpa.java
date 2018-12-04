@@ -13,7 +13,5 @@ import java.util.List;
  */
 public interface WebsiteJpa extends JpaRepository<Website, Long>, JpaSpecificationExecutor<Website> {
 
-    Website findById(long id);
-
     List<Website> findByIdIn(List<Long> ids);
 }

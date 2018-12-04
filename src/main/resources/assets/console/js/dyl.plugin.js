@@ -18,6 +18,9 @@ window.DP = {
         },
         'editAfter': function (e) {
 
+        },
+        'saveAfter': function (e) {
+
         }
     },
 
@@ -62,9 +65,6 @@ window.DP = {
     add: function (t) {
         var $md = $('#' + DP.config.showMd);
         $md.find('.modal-title').html(t);
-        var $fm = $md.find('form');
-        $fm[0].reset();
-        resetOption($fm);
 
         DP.config.addBefore();
         $md.modal('show');
@@ -102,6 +102,12 @@ window.DP = {
                     contentType: "application/json;charset=utf-8",
                     data: JSON.stringify(idArr),
                     dataType: "json",
+                    beforeSend: function(){
+                        $('.preloader').fadeIn();
+                    },
+                    complete: function(){
+                        $('.preloader').fadeOut();
+                    },
                     success: function (result) {
                         if (result == 1) {
                             alertTip('success', '删除成功');
@@ -147,16 +153,20 @@ window.DP = {
             data: param,
             dataType: "json",
             beforeSend: function(){
-                $('.fakeloader').fadeIn();
+                $('.preloader').fadeIn();
             },
             complete: function(){
-                $('.fakeloader').fadeOut();
+                $('.preloader').fadeOut();
             },
             success: function (result) {
                 if (result == 1) {
                     alertTip('success', '保存成功');
                     $md.modal('hide');
                     DP.getTable().bootstrapTable("refresh");
+
+                    $fm[0].reset();
+                    resetOption($fm);
+                    DP.config.saveAfter();
                 } else {
                     alertTip('error', '保存失败');
                 }

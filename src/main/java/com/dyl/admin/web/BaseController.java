@@ -3,6 +3,7 @@ package com.dyl.admin.web;
 import com.dyl.admin.web.console.sys.dto.ResImg;
 import com.dyl.admin.web.console.sys.dto.SysUser;
 import com.dyl.admin.web.console.sys.facade.ResImgJpa;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
@@ -13,16 +14,18 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
 /**
- * Description: HomeController
+ * Description: BaseController
  * Author: DIYILIU
  * Update: 2018-12-02 21:53
  */
 
+@Slf4j
 @Component
-public class HomeController {
+public class BaseController {
 
     @Autowired
     protected HttpServletRequest request;
@@ -56,5 +59,22 @@ public class HomeController {
         img.setCreateTime(new Date());
 
         return  resImgJpa.save(img);
+    }
+
+    protected void deleteImg(long id) throws IOException {
+        if (id > 0){
+            ResImg img = resImgJpa.findById(id).get();
+
+            String resPath = img.getPath();
+            org.springframework.core.io.Resource localRes = new UrlResource("file:" + resPath);
+            if (localRes.exists()) {
+                if (localRes.getFile().delete()) {
+                    log.info("删除文件[{}]成功!", img.getPath());
+                }else {
+                    log.error("删除文件[{}]失败!", img.getPath());
+                }
+            }
+            resImgJpa.delete(img);
+        }
     }
 }
