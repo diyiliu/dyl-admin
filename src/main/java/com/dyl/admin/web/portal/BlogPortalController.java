@@ -110,13 +110,13 @@ public class BlogPortalController extends BaseController {
 
     @GetMapping("/classify/{id}")
     public String classify(@PathVariable long id, Model model) {
-        if (id == 0) {
+        Classify classify = classifyJpa.findById(id).get();
+        if (classify == null || "首页".equals(classify.getName())) {
 
             return "redirect:/";
         }
-        Classify classify = classifyJpa.findById(id).get();
-        model.addAttribute("classify", classify);
 
+        model.addAttribute("classify", classify);
         List articles = articleJpa.findByStatusAndClassify_Id(1, id);
         model.addAttribute("totalNumber", articles.size());
         model.addAttribute("active", classify.getId());
@@ -150,6 +150,7 @@ public class BlogPortalController extends BaseController {
         Pageable pageable = PageRequest.of(pageData.getPageNo() - 1, pageData.getPageSize(), Sort.by(Sort.Direction.DESC, "createTime"));
 
         Page<Article> articlePage;
+        // 首页内容
         if (id == 0) {
             articlePage = articleJpa.findByStatus(1, pageable);
         } else {
