@@ -62,7 +62,7 @@ tasks.withType(JavaCompile) {
 }
 
 bootJar {
-    baseName = 'dyl-blog'
+    baseName = 'dyl-admin'
     version = ''
 
     manifest {
