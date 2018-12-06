@@ -2,6 +2,7 @@ package com.dyl.admin.web.console.nav.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import org.apache.commons.collections.CollectionUtils;
 
 import javax.persistence.*;
 import java.util.List;
@@ -42,4 +43,17 @@ public class SiteType {
     @OrderBy("sort asc")
     @OneToMany(mappedBy = "siteType")
     private List<Website> siteList;
+
+    @Transient
+    private Integer siteCount = 0;
+
+    public String getName() {
+
+        if (CollectionUtils.isNotEmpty(siteList)) {
+
+            siteCount = siteList.size();
+        }
+
+        return name;
+    }
 }

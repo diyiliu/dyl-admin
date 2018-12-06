@@ -91,6 +91,18 @@ public class NavController extends BaseController {
         return respMap;
     }
 
+    @PostMapping("/typeList")
+    public Map typeList() {
+        List<SiteType> siteTypeList = siteTypeJpa.findAll(Sort.by("sort"));
+
+        Map respMap = new HashMap();
+        respMap.put("data", siteTypeList);
+        respMap.put("total", siteTypeList.size());
+
+        return respMap;
+    }
+
+
     @PostMapping("/site")
     public Integer saveSite(Website website) throws Exception {
         if (website.getId() != null){

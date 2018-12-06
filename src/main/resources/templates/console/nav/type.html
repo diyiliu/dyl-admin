@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="~{layout/console}">
+<head>
+    <title>帝一流博客 - 后台管理</title>
+    <link th:href="@{/assets/plugin/treeview/dhtmlxtreeview.css}" type="text/css" rel="stylesheet">
+</head>
+
+<body>
+<div layout:fragment="breadcrumb">
+    <a class="navbar-brand" href="javascript: void(0);">类别管理</a>
+</div>
+
+<div layout:fragment="container" class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-rose">
+                    <div class="nav-tabs-navigation">
+                        <div class="nav-tabs-wrapper">
+                            <span class="nav-tabs-title"></span>
+                            <ul class="nav nav-tabs nav-opt" data-tabs="tabs">
+                                <li class="nav-item active">
+                                    <button class="btn btn-link nav-link">
+                                        <i class="material-icons">category</i> 类别
+                                    </button>
+                                </li>
+                                <li class="nav-item active">
+                                    <button class="btn btn-link nav-link">
+                                        <i class="material-icons">format_list_numbered</i> 排序
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table" id="myTable"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div layout:fragment="pageJs">
+    <script th:src="@{/assets/plugin/treeview/dhtmlxtreeview.min.js}"></script>
+    <script th:inline="javascript">
+        $(function () {
+            var $table = $('#myTable');
+            DP.init();
+
+            DP.table.init({
+                pagination: false,
+                url: /*[[@{/console/nav/typeList}]]*/,
+                columns: [
+                    {
+                        title: '序号',
+                        formatter: function (value, row, index) {
+                            return index + 1;
+                        }
+                    },
+                    {
+                        field: 'name',
+                        title: '名称'
+                    },
+                    {
+                        field: 'siteCount',
+                        title: '网址数量'
+                    },
+                    {
+                        field: '',
+                        title: '操作',
+                        align: 'right',
+                        formatter: function (value, row, index) {
+                            var url = /*[[@{/console/nav/siteType/}]]*/;
+
+                            var str = '<div class="td-actions"><button type="button" class="btn btn-success btn-link"  onclick="DP.editLink(' + row.id + ', this)" data-modal-title="修改网址"' +
+                                '><i class="material-icons">edit</i></button>' +
+                                '<button type="button" class="btn btn-danger btn-link" onclick="DP.delLink(this)" data-url="' + url + '" data-id="' + row.id +
+                                '"><i class="material-icons">close</i></button></div>';
+                            return str;
+                        }
+
+                    }
+                ]
+            });
+        });
+    </script>
+</div>
+</body>
+
+</html>
