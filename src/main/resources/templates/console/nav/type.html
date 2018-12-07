@@ -41,27 +41,21 @@
                             <table class="table" id="myTable"></table>
                         </div>
                         <div class="tab-pane" id="sort">
-                            <div class="card">
-                                <div class="card-header">
-                                    <div class="border-bottom text-right">
-                                        <button type="button" class="btn btn-primary" id="saveSort">保存</button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="nestable">
-                                        <div class="dd" id="nestable">
-                                            <ol class="dd-list">
-                                                <li class="dd-item" th:each="type:${#request.getAttribute('types')}" th:attr="data-id=${type.id}">
-                                                    <div class="dd-handle" th:text="${type.name}"></div>
-                                                    <ol class="dd-list" th:if="${!#lists.isEmpty(type.siteList)}">
-                                                        <li class="dd-item" th:each="site:${type.siteList}" th:attr="data-id=${site.id}">
-                                                            <div class="dd-handle" th:text="${site.name}"></div>
-                                                        </li>
-                                                    </ol>
+                            <div class="border-bottom-4 text-right">
+                                <button type="button" class="btn btn-primary" id="saveSort">保存</button>
+                            </div>
+                            <div class="nestable">
+                                <div class="dd" id="nestable">
+                                    <ol class="dd-list">
+                                        <li class="dd-item" th:each="type:${#request.getAttribute('types')}" th:attr="data-id=${type.id}">
+                                            <div class="dd-handle" th:text="${type.name}"></div>
+                                            <ol class="dd-list" th:if="${!#lists.isEmpty(type.siteList)}">
+                                                <li class="dd-item" th:each="site:${type.siteList}" th:attr="data-id=${site.id}">
+                                                    <div class="dd-handle" th:text="${site.name}"></div>
                                                 </li>
                                             </ol>
-                                        </div>
-                                    </div>
+                                        </li>
+                                    </ol>
                                 </div>
                             </div>
                         </div>
