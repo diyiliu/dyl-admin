@@ -73,12 +73,15 @@ public class PageDataBindingFilter {
             return;
         }
 
-        if (menu.equals("site")) {
+        if (menu.startsWith("site")) {
             List<SiteType> siteTypes = siteTypeJpa.findAll(Sort.by("sort"));
             request.setAttribute("types", siteTypes);
 
-            List<String> names = siteTypes.stream().map(SiteType::getName).collect(Collectors.toList());
-            request.setAttribute("tNames", names);
+            // 主页面 添加chosen
+            if (menu.contains(".1")) {
+                List<String> names = siteTypes.stream().map(SiteType::getName).collect(Collectors.toList());
+                request.setAttribute("tNames", names);
+            }
 
             return;
         }

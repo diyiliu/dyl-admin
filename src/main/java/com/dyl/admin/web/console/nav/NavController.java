@@ -234,7 +234,7 @@ public class NavController extends BaseController {
     }
 
 
-    @PostMapping("/type")
+    @PostMapping("/sort")
     public Integer saveSort(@RequestBody String json) throws Exception {
         List list = JacksonUtil.toList(json, Map.class);
         List<SiteType> siteTypes = siteTypeJpa.findAll(Sort.by("sort"));
@@ -285,6 +285,7 @@ public class NavController extends BaseController {
 
         return 1;
     }
+
 
     /**
      * 抓取网站图标

@@ -8,6 +8,10 @@
     padding:12px 8px;
 }
 
+.bootstrap-table .table > thead > tr > th {
+    border-bottom: 2px solid #ddd;
+}
+
 .note-editor.note-frame.card.fullscreen{
     top: -30px;
 }

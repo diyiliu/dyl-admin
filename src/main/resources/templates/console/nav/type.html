@@ -4,7 +4,7 @@
       layout:decorate="~{layout/console}">
 <head>
     <title>帝一流博客 - 后台管理</title>
-    <link th:href="@{/assets/plugin/treeview/dhtmlxtreeview.css}" type="text/css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/assets/plugin/nestable/nestable.css}">
 </head>
 
 <body>
@@ -20,23 +20,52 @@
                     <div class="nav-tabs-navigation">
                         <div class="nav-tabs-wrapper">
                             <span class="nav-tabs-title"></span>
-                            <ul class="nav nav-tabs nav-opt" data-tabs="tabs">
-                                <li class="nav-item active">
-                                    <button class="btn btn-link nav-link">
+                            <ul class="nav nav-tabs" data-tabs="tabs">
+                                <li class="nav-item">
+                                    <a class="btn btn-link nav-link active" href="#category" data-toggle="tab">
                                         <i class="material-icons">category</i> 类别
-                                    </button>
+                                    </a>
                                 </li>
-                                <li class="nav-item active">
-                                    <button class="btn btn-link nav-link">
+                                <li class="nav-item">
+                                    <a class="btn btn-link nav-link" href="#sort" data-toggle="tab">
                                         <i class="material-icons">format_list_numbered</i> 排序
-                                    </button>
+                                    </a>
                                 </li>
                             </ul>
                         </div>
                     </div>
                 </div>
-                <div class="card-body table-responsive">
-                    <table class="table" id="myTable"></table>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="category">
+                            <table class="table" id="myTable"></table>
+                        </div>
+                        <div class="tab-pane" id="sort">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="border-bottom text-right">
+                                        <button type="button" class="btn btn-primary" id="saveSort">保存</button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="nestable">
+                                        <div class="dd" id="nestable">
+                                            <ol class="dd-list">
+                                                <li class="dd-item" th:each="type:${#request.getAttribute('types')}" th:attr="data-id=${type.id}">
+                                                    <div class="dd-handle" th:text="${type.name}"></div>
+                                                    <ol class="dd-list" th:if="${!#lists.isEmpty(type.siteList)}">
+                                                        <li class="dd-item" th:each="site:${type.siteList}" th:attr="data-id=${site.id}">
+                                                            <div class="dd-handle" th:text="${site.name}"></div>
+                                                        </li>
+                                                    </ol>
+                                                </li>
+                                            </ol>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -44,7 +73,7 @@
 </div>
 
 <div layout:fragment="pageJs">
-    <script th:src="@{/assets/plugin/treeview/dhtmlxtreeview.min.js}"></script>
+    <script th:src="@{/assets/plugin/nestable/jquery.nestable.js}"></script>
     <script th:inline="javascript">
         $(function () {
             var $table = $('#myTable');
@@ -73,7 +102,7 @@
                         title: '操作',
                         align: 'right',
                         formatter: function (value, row, index) {
-                            var url = /*[[@{/console/nav/siteType/}]]*/;
+                            var url = /*[[@{/console/nav/type/}]]*/;
 
                             var str = '<div class="td-actions"><button type="button" class="btn btn-success btn-link"  onclick="DP.editLink(' + row.id + ', this)" data-modal-title="修改网址"' +
                                 '><i class="material-icons">edit</i></button>' +
@@ -84,6 +113,46 @@
 
                     }
                 ]
+            });
+
+            var str = '';
+            var updateOutput = function(e)
+            {
+                var list   = e.length ? e : $(e.target);
+                str = JSON.stringify(list.nestable('serialize'));
+            };
+
+            $('#nestable').nestable({
+                group: 1
+            }).on('change', updateOutput);
+            updateOutput($('#nestable'));
+            $('#saveSort').on('click', function () {
+                // 提示
+                swal({
+                        title: "确认当前排列?",
+                        text: "保存后将无法恢复",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#e67e22",
+                        confirmButtonText: "确定",
+                        closeOnConfirm: true
+                    },
+                    function () {
+                        $.ajax({
+                            type: 'post',
+                            url: /*[[@{/console/nav/sort}]]*/,
+                            contentType: "application/json;charset=utf-8",
+                            data: str,
+                            dataType: "json",
+                            success: function (result) {
+                                if (result == 1) {
+                                    alertTip('success', '保存成功');
+                                } else {
+                                    alertTip('error', '保存失败');
+                                }
+                            }
+                        });
+                    });
             });
         });
     </script>
