@@ -204,31 +204,11 @@ public class NavController extends BaseController {
     }
 
 
-    @PutMapping("/type")
-    public Integer modifySiteType(@RequestParam("typeNames") String typeNames) {
-        String[] names = typeNames.split(",");
-        List<String> nameList = Arrays.asList(names);
-
-        List<SiteType> siteTypes = siteTypeJpa.findAll();
-        List<String> oldList = siteTypes.stream().map(SiteType::getName).collect(Collectors.toList());
-
-        // 新增
-        List<String> addTemps = (List<String>) CollectionUtils.subtract(nameList, oldList);
-        List<SiteType> list = new ArrayList();
-        for (String temp : addTemps) {
-            SiteType type = new SiteType(temp);
-            type.setSort(100);
-            list.add(type);
-        }
-
-        list = siteTypeJpa.saveAll(list);
-        if (list == null) {
-            return 0;
-        }
-
-        // 删除
-        List<String> delTemps = (List<String>) CollectionUtils.subtract(oldList, nameList);
-        siteTypeJpa.deleteByNameIn(delTemps);
+    @PostMapping("/modifyType")
+    public Integer modifyType(long id, String name) {
+        SiteType type = siteTypeJpa.findById(id).get();
+        type.setName(name);
+        siteTypeJpa.save(type);
 
         return 1;
     }

@@ -67,6 +67,7 @@
 </div>
 
 <div layout:fragment="pageJs">
+    <script th:src="@{/assets/console/js/jquery.tabledit.js}"></script>
     <script th:src="@{/assets/plugin/nestable/jquery.nestable.js}"></script>
     <script th:inline="javascript">
         $(function () {
@@ -78,10 +79,8 @@
                 url: /*[[@{/console/nav/typeList}]]*/,
                 columns: [
                     {
-                        title: '序号',
-                        formatter: function (value, row, index) {
-                            return index + 1;
-                        }
+                        field: 'id',
+                        title: 'ID'
                     },
                     {
                         field: 'name',
@@ -94,19 +93,33 @@
                     {
                         field: '',
                         title: '操作',
-                        align: 'right',
                         formatter: function (value, row, index) {
                             var url = /*[[@{/console/nav/type/}]]*/;
 
-                            var str = '<div class="td-actions"><button type="button" class="btn btn-success btn-link"  onclick="DP.editLink(' + row.id + ', this)" data-modal-title="修改网址"' +
-                                '><i class="material-icons">edit</i></button>' +
-                                '<button type="button" class="btn btn-danger btn-link" onclick="DP.delLink(this)" data-url="' + url + '" data-id="' + row.id +
-                                '"><i class="material-icons">close</i></button></div>';
+                            var str = '<div class="td-actions"><button type="button" class="btn btn-danger btn-link" ' +
+                                'onclick="DP.delLink(this)" data-url="' + url + '" data-id="' + row.id + '">' +
+                                '<i class="material-icons">close</i></button></div>';
                             return str;
                         }
-
                     }
-                ]
+                ],
+                onLoadSuccess: function (data) {
+                    var cols = [1,'name'];
+                    $('#myTable').Tabledit({
+                        url: /*[[@{/console/nav/modifyType/}]]*/,
+                        eventType: 'dblclick',
+                        editButton: false,
+                        deleteButton: false,
+                        hideIdentifier: true,
+                        columns: {
+                            identifier: [0,'id'],
+                            editable: [cols]
+                        },
+                        onSuccess: function() {
+                            alertTip('success', '修改成功');
+                        }
+                    });
+                }
             });
 
             var str = '';
@@ -152,5 +165,4 @@
     </script>
 </div>
 </body>
-
 </html>

@@ -142,3 +142,7 @@ pre {
 .border-bottom-4 {
     border-bottom: 4px solid #dee2e6 !important
 }
+
+.table .tabledit-input{
+    background-image: none;
+}
