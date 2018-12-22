@@ -56,7 +56,7 @@ public class NavController extends BaseController {
     @PostMapping("/siteList")
     public Map siteList(@RequestParam int pageNo, @RequestParam int pageSize,
                         @RequestParam(required = false) String search, @RequestParam(required = false) Long typeId) {
-        Pageable pageable =  PageRequest.of(pageNo - 1, pageSize, Sort.by(Sort.Direction.DESC, "createTime"));
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by(Sort.Direction.DESC, "createTime"));
 
         Page<Website> sitePage;
         if (StringUtils.isEmpty(search) && typeId == null) {
@@ -105,31 +105,18 @@ public class NavController extends BaseController {
 
     @PostMapping("/site")
     public Integer saveSite(Website website) throws Exception {
-        if (website.getId() != null){
+        if (website.getId() != null) {
 
             return modifySite(website);
         }
 
         website.setCreateTime(new Date());
         // 抓取图片
-        byte[] imgBytes = null;
-        try {
-            imgBytes = fetchICO(website.getUrl());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if (imgBytes == null){
-
+        byte[] imgBytes = fetchICO(website.getUrl());
+        if (imgBytes == null) {
             website.setImage(0l);
-        }else {
-            String picDir = environment.getProperty("upload.nav.icon");
-            org.springframework.core.io.Resource resDir = new UrlResource(picDir);
-
-            File tempFile = File.createTempFile("icon", ".png", resDir.getFile());
-            FileCopyUtils.copy(imgBytes, tempFile);
-            ResImg resImg = save(tempFile);
-            website.setImage(resImg.getId());
+        } else {
+            website.setImage(saveImg(imgBytes));
         }
 
         // 未设置网站分组
@@ -188,9 +175,8 @@ public class NavController extends BaseController {
         return 1;
     }
 
-
     @DeleteMapping("/site/{id}")
-    public Integer deleteSite(@PathVariable long id) throws Exception{
+    public Integer deleteSite(@PathVariable long id) throws Exception {
         Website site = websiteJpa.findById(id).get();
 
         // 删除图片
@@ -203,12 +189,55 @@ public class NavController extends BaseController {
         return 1;
     }
 
+    @PutMapping("/icon/{id}")
+    public Integer modifyIcon(@PathVariable long id){
+        Website site = websiteJpa.findById(id).get();
+
+        // 抓取图片
+        byte[] imgBytes = fetchICO(site.getUrl());
+        if (imgBytes == null){
+
+            return 0;
+        }
+
+        try {
+            deleteImg(site.getImage());
+            long newId = saveImg(imgBytes);
+            site.setImage(newId);
+            websiteJpa.save(site);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+
+        return 1;
+    }
+
 
     @PostMapping("/modifyType")
     public Integer modifyType(long id, String name) {
         SiteType type = siteTypeJpa.findById(id).get();
         type.setName(name);
         siteTypeJpa.save(type);
+
+        return 1;
+    }
+
+    @PostMapping("/type")
+    public Integer type(SiteType siteType) {
+        siteTypeJpa.save(siteType);
+
+        return 1;
+    }
+
+    @DeleteMapping("/type/{id}")
+    public Integer type(@PathVariable long id) {
+        SiteType type = siteTypeJpa.findById(id).get();
+        if (CollectionUtils.isNotEmpty(type.getSiteList())) {
+
+            return 0;
+        }
+        siteTypeJpa.deleteById(id);
 
         return 1;
     }
@@ -264,6 +293,21 @@ public class NavController extends BaseController {
         }
 
         return 1;
+    }
+
+    private long saveImg(byte[] imgBytes) throws Exception {
+        String picDir = environment.getProperty("upload.nav.icon");
+        org.springframework.core.io.Resource resDir = new UrlResource(picDir);
+
+        File tempFile = File.createTempFile("icon", ".png", resDir.getFile());
+        FileCopyUtils.copy(imgBytes, tempFile);
+        ResImg resImg = save(tempFile);
+        if (resImg == null) {
+
+            return 0;
+        }
+
+        return resImg.getId();
     }
 
 

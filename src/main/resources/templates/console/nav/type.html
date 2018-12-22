@@ -27,7 +27,7 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="btn btn-link nav-link" href="#sort" data-toggle="tab">
+                                    <a class="btn btn-link nav-link" href="#list" data-toggle="tab">
                                         <i class="material-icons">format_list_numbered</i> 排序
                                     </a>
                                 </li>
@@ -39,8 +39,11 @@
                     <div class="tab-content">
                         <div class="tab-pane active" id="category">
                             <table class="table" id="myTable"></table>
+                            <div class="btn-group-sm" id="toolbar">
+                                <button type="button" class="btn btn-default" id="addItem" data-title="新增类别">新增</button>
+                            </div>
                         </div>
-                        <div class="tab-pane" id="sort">
+                        <div class="tab-pane" id="list">
                             <div class="text-right">
                                 <button type="button" class="btn btn-primary" id="saveSort">保存</button>
                             </div>
@@ -64,6 +67,52 @@
             </div>
         </div>
     </div>
+
+    <div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">新增类别</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <form class="form-horizontal" role="form">
+                                <input type="hidden" id="id" name="id">
+                                <div class="row">
+                                    <label for="name" class="col-md-2  col-form-label">名称</label>
+                                    <div class="col-md-10">
+                                        <input type="text" class="form-control" id="name" name="name">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <label for="sort" class="col-md-2  col-form-label">排序</label>
+                                    <div class="col-md-10">
+                                        <input type="text" class="form-control" id="sort" name="sort">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-rose" id="saveItem"
+                                    th:attr="data-url=@{/console/nav/type}">保存
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
 </div>
 
 <div layout:fragment="pageJs">
@@ -75,6 +124,8 @@
             DP.init();
 
             DP.table.init({
+                toolbar: '#toolbar',
+                toolbarAlign: 'right',
                 pagination: false,
                 url: /*[[@{/console/nav/typeList}]]*/,
                 columns: [
@@ -85,6 +136,10 @@
                     {
                         field: 'name',
                         title: '名称'
+                    },
+                    {
+                        field: 'sort',
+                        title: '排序'
                     },
                     {
                         field: 'siteCount',

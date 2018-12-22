@@ -195,7 +195,8 @@
                         formatter: function (value, row, index) {
                             // 相对路径
                             var path = /*[[@{/image/show/2018/}]]*/;
-                            return '<img style="display: inline-block;width: 16px;height: 16px;" src=' + path + value + '>';
+                            return '<div class="td-actions"><button type="button" class="btn btn-link" onclick="modifyIcon(' + row.id +');">' +
+                                '<img style="display: inline-block;width: 16px;height: 16px;" src=' + path + value + '></button></div>';
                         }
                     },
                     {
@@ -221,6 +222,29 @@
                 ]
             });
         });
+
+        function modifyIcon(i) {
+            var url = /*[[@{/console/nav/icon/}]]*/;
+            $.ajax({
+                type: 'put',
+                url: url + i,
+                dataType: "json",
+                beforeSend: function(){
+                    $('.preloader').fadeIn();
+                },
+                complete: function(){
+                    $('.preloader').fadeOut();
+                },
+                success: function (result) {
+                    if (result == 1) {
+                        alertTip('success', '更新成功');
+                        DP.getTable().bootstrapTable("refresh");
+                    } else {
+                        alertTip('error', '更新失败');
+                    }
+                }
+            });
+        }
     </script>
 </div>
 </body>
