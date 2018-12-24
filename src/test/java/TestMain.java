@@ -22,11 +22,10 @@ public class TestMain {
     @Test
     public void test(){
 
-        String str = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Maven Repository: Search/Browse/Explore</title><link rel=\"canonical\" href=\"https://mvnrepository.com/\"/>" +
-                "<link rel=\"shortcut icon\" type=\"image/x-icon\" href=\"/assets/images/7080b8b0f6f48e6fbaffd5f9d85fcc7f-favicon.ico\">" +
-                "<link rel=\"search\" type=\"application/opensearchdescription+xml\" href=\"/opensearch.xml\" title=\"MvnRepository\"><script>";
+        String str = "<link rel=\"canonical\" href=\"https://mvnrepository.com/\"/><link rel=\"shortcut icon\" type=\"image/x-icon\" href=\"/assets/images/7080b8b0f6f48e6fbaffd5f9d85fcc7f-favicon.ico\">";
+
         // 取出有用的范围
-        Pattern p = Pattern.compile("<link rel=\"[^\"]*icon\"[^>]+>");
+        Pattern p = Pattern.compile("<link[^<]+rel=\"[^\"]*icon[^\"]*\"[^>]+>");
         Matcher m = p.matcher(str);
         if (m.find()) {
             String path = m.group();

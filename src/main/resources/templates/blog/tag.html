@@ -29,7 +29,7 @@
 
                     <span class="text">
                       <div class="post-meta">
-                        <span class="category" th:text="${art.tagList[0].name}">Travel</span>
+                        <span class="category" th:if="${!#arrays.isEmpty(art.tagList)}" th:text="${#arrays.isEmpty(art.tagList)? '无': art.tagList[0].name}">Travel</span>
                         <span class="mr-2" th:text="${art.createTimeStr}"> </span> &bullet;
                         <span class="ml-2" th:utext="|<span class='fa fa-eye'></span>&nbsp;${art.seeCount}|"></span>
                       </div>

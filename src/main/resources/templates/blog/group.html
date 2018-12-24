@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="~{layout/blog}">
+<head>
+    <title>DYL博客 - 记录成长过程</title>
+    <meta name="keywords" content="编程,java,spring,分布式,设计,DYL博客"/>
+    <meta name="description" content="DYL博客主要分享一些学习笔记和心得，以软件开发为主。记录日常解决问题的过程，帮助大家尽快爬出代码开发中的坑！"/>
+</head>
+<body>
+
+<div layout:fragment="title" class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="mb-4" th:text="'#  ' + ${classify.name}"></h2>
+    </div>
+</div>
+<div layout:fragment="main" class="col-md-12 col-lg-8 main-content">
+    <div class="row mb-5" id="article">
+        <div class="col-md-12">
+            <div class="post-entry-horzontal" th:each="art: ${list}">
+                <a th:href="@{/article/{id}(id = ${art.id})}">
+                    <div th:if="${art.resImg != null}" class="image element-animate" data-animate-effect="fadeIn"
+                         th:style="'background-image: url(' + @{/image/show/2018/{img}(img = ${art.resImg})}  + ');'">
+                    </div>
+                    <div th:if="${art.resImg == null}" class="image element-animate" data-animate-effect="fadeIn"
+                         style="border: 1px solid #e6e6e6;">
+                        <p class="overview" th:text="${art.overview}"></p>
+                    </div>
+
+                    <span class="text">
+                      <div class="post-meta">
+                        <span class="category" th:if="${!#arrays.isEmpty(art.tagList)}"
+                              th:text="${#arrays.isEmpty(art.tagList)? '无': art.tagList[0].name}">Travel</span>
+                        <span class="mr-2" th:text="${art.createTimeStr}"> </span> &bullet;
+                        <span class="ml-2" th:utext="|<span class='fa fa-eye'></span>&nbsp;${art.seeCount}|"></span>
+                      </div>
+                      <h2 th:text="${art.title}"></h2>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="loading" value="0">
+</div>
+<div layout:fragment="pageJs">
+    <script th:inline="javascript">
+        var pageno = 1;
+        $(function () {
+            $(window).scroll(function () {
+                var scrollTop = $(this).scrollTop();
+                var documentHeight = $(document).height();
+                var windowHeight = $(this).height();
+
+                if (scrollTop + windowHeight > documentHeight - 100) {
+                    var status = $('#loading').val();
+                    if (status == 0) {
+                        $('#loading').val(1);
+                        loadMore();
+                    }
+                }
+            });
+        });
+
+        function loadMore() {
+            var path = /*[[@{/classify/}]]*/;
+            var clzId = /*[[${classify.id}]]*/;
+            $.ajax({
+                type: 'post',
+                url: path + clzId,
+                data: {
+                    pageNo: ++pageno,
+                    pageSize: 5,
+                },
+                dataType: "json",
+                success: function (result) {
+                    var data = result.data;
+                    var path = /*[[@{/}]]*/;
+                    if (data) {
+                        var str = '<div class="col-md-12">';
+                        for (var i = 0; i < data.length; i++) {
+                            var art = data[i];
+
+                            var main = '';
+                            if (art.resImg) {
+                                var imgPath = path + 'image/show/2018/' + art.resImg;
+                                main = '<div class="image element-animate fadeIn element-animated" data-animate-effect="fadeIn" style="background-image: url(' + imgPath + ');"></div>';
+                            } else {
+                                main = '<div class="image element-animate fadeIn element-animated" data-animate-effect="fadeIn" style="border: 1px solid #e6e6e6;"><p class="overview">'
+                                    + art.overview + '</p></div>';
+                            }
+                            var tagStr = "";
+                            var tag = art.tagList[0];
+                            if (tag) {
+                                tagStr = '<span class="category"> ' + art.tagList[0].name + ' </span>'
+                            }
+
+                            var artPath = path + 'article/' + art.id;
+                            str += '                <div class="post-entry-horzontal">' +
+                                '                  <a href="' + artPath + '" target="_blank">' + main +
+                                '                    <span class="text">' +
+                                '                      <div class="post-meta">' + tagStr +
+                                '                        <span class="mr-2">' + art.createTime + '</span> &bullet;' +
+                                '                        <span class="ml-2"><span class="fa fa-eye"></span> ' + art.seeCount + '</span>' +
+                                '                      </div>' +
+                                '                      <h2>' + art.title + '</h2>' +
+                                '                    </span>' +
+                                '                  </a>' +
+                                '                </div>';
+                        }
+
+                        $('#article').append(str);
+                        $('#loading').val(0);
+                    }
+                }
+            });
+        }
+    </script>
+</div>
+</body>
+</html>

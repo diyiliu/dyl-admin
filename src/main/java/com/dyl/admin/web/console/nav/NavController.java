@@ -355,7 +355,7 @@ public class NavController extends BaseController {
                 while ((line = br.readLine()) != null) {
                     if (line.contains(".ico") || line.contains("icon")) {
                         // 取出有用的范围
-                        Pattern p = Pattern.compile("<link rel=\"[^\"]*icon\"[^>]+>");
+                        Pattern p = Pattern.compile("<link[^<]+rel=\"[^\"]*icon[^\"]*\"[^>]+>");
                         Matcher m = p.matcher(line.trim());
                         if (m.find()) {
                             String path = m.group();
@@ -364,6 +364,9 @@ public class NavController extends BaseController {
                             index = path.indexOf("\"");
                             path = path.substring(0, index);
 
+                            if (!path.startsWith("http") && !path.startsWith("/")){
+                                path = "/" + path;
+                            }
                             if (!path.contains("//")) {
                                 path = scheme + "://" + location + path;
                             }

@@ -101,9 +101,9 @@ public class BlogPortalController extends BaseController {
 
     @GetMapping("/")
     public String index(Model model) {
-        List articles = articleJpa.findByStatus(1);
-        model.addAttribute("totalNumber", articles.size());
-        model.addAttribute("active", 0);
+        Pageable pageable = PageRequest.of(0, 6, Sort.by(Sort.Direction.DESC, "createTime"));
+        Page<Article> articlePage = articleJpa.findByStatus(1, pageable);
+        model.addAttribute("list", articlePage.getContent());
 
         return "index";
     }
@@ -117,11 +117,11 @@ public class BlogPortalController extends BaseController {
         }
 
         model.addAttribute("classify", classify);
-        List articles = articleJpa.findByStatusAndClassify_Id(1, id);
-        model.addAttribute("totalNumber", articles.size());
-        model.addAttribute("active", classify.getId());
+        Pageable pageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createTime"));
+        Page<Article> articlePage = articleJpa.findByStatusAndClassify_Id(1, id, pageable);
+        model.addAttribute("list", articlePage.getContent());
 
-        return "blog/classify";
+        return "blog/group";
     }
 
     @GetMapping("/article/{id}")
@@ -163,7 +163,6 @@ public class BlogPortalController extends BaseController {
         return pageData;
     }
 
-
     @ResponseBody
     @PostMapping("/image/upload")
     public RespBody imgUpload(MultipartFile file) throws Exception {
@@ -180,7 +179,6 @@ public class BlogPortalController extends BaseController {
 
         return respBody;
     }
-
 
     @GetMapping("/image/show/{time}/{id}")
     public void showPicture(@PathVariable long id, @PathVariable String time, HttpServletResponse response) {

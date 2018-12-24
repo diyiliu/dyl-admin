@@ -46,77 +46,97 @@
 </div>
 
 <div layout:fragment="main" class="col-md-12 col-lg-8 main-content">
-    <div class="row" id="article"></div>
-    <div class="row" th:classappend="${totalNumber < 9? 'collapse': ''}">
-        <div class="col-md-12 text-center">
-            <nav aria-label="Page navigation" class="text-center">
-                <div id="page" class="pagination"></div>
-            </nav>
+    <div class="row" id="article">
+        <div class="col-md-6" th:each="art: ${list}">
+            <a th:href="@{/article/{id}(id = ${art.id})}" class="blog-entry element-animate" data-animate-effect="fadeIn">
+                <div th:if="${art.resImg != null}" class="image element-animate" data-animate-effect="fadeIn"
+                     th:style="'background-image: url(' + @{/image/show/2018/{img}(img = ${art.resImg})}  + ');'">
+                </div>
+                <div th:if="${art.resImg == null}" class="bio" style="height: 234px" data-animate-effect="fadeIn" th:text="${art.overview}"></div>
+                <div class="blog-content-body">
+                    <div class="post-meta">
+                        <span class="category" th:if="${!#arrays.isEmpty(art.tagList)}" th:text="${art.tagList[0].name}">Travel</span>
+                        <span class="mr-2" th:text="${art.createTimeStr}"> </span> &bullet;
+                        <span class="ml-2" th:utext="|<span class='fa fa-eye'></span>&nbsp;${art.seeCount}|"></span>
+                    </div>
+                    <h2 th:text="${art.title}"></h2>
+                </div>
+            </a>
         </div>
     </div>
+
+    <input type="hidden" id="loading" value="0">
 </div>
 <div layout:fragment="pageJs">
     <script th:inline="javascript">
+        var pageno = 1;
         $(function () {
-            $('[data-toggle="popover"]').popover();
+            $(window).scroll(function () {
+                var scrollTop = $(this).scrollTop();
+                var documentHeight = $(document).height();
+                var windowHeight = $(this).height();
 
-            layui.use(['laypage'], function() {
-                var laypage = layui.laypage;
-                laypage.render({
-                    elem: 'page'
-                    , count: /*[[${totalNumber}]]*/
-                    , limit: 8
-                    , groups: 3
-                    , prev: '<'
-                    , next: '>'
-                    ,jump: function(obj){
-                        $.ajax({
-                            type: 'post',
-                            url: /*[[@{/classify/0}]]*/,
-                            data: {
-                                pageNo: obj.curr,
-                                pageSize: obj.limit
-                            },
-                            dataType: "json",
-                            success: function (result) {
-                                var data = result.data;
-                                var path = /*[[@{/}]]*/;
-                                if (data){
-                                    var str = '';
-                                    for (var i = 0; i < data.length; i++){
-                                        var art = data[i];
-
-                                        var main = '';
-                                        if (art.resImg) {
-                                            var imgPath = path +  'image/show/2018/' + art.resImg;
-                                            main = '<div class="image" style="background-image: url(' + imgPath + ')"></div>';
-                                        }else {
-                                            main = ' <div class="bio" style="height: 234px">' + art.overview + ' &bullet;&bullet;&bullet; </div>'
-                                        }
-
-                                        var artPath = path + 'article/' + art.id;
-                                        str += '<div class="col-md-6">' +
-                                            '            <a href="' + artPath + '" target="_blank" class="blog-entry element-animate fadeIn element-animated" data-animate-effect="fadeIn">' + main +
-                                            '                <div class="blog-content-body">' +
-                                            '                    <div class="post-meta">' +
-                                            '                        <span class="category"> ' + art.tagList[0].name + ' </span>' +
-                                            '                        <span class="mr-2">' + art.createTime + '</span> &bullet;' +
-                                            '                        <span class="ml-2"><span class="fa fa-eye"></span> ' + art.seeCount + '</span>' +
-                                            '                    </div>' +
-                                            '                    <h2>' + art.title + '</h2>' +
-                                            '                </div>' +
-                                            '            </a>' +
-                                            '        </div>'
-                                    }
-
-                                    $('#article').html(str);
-                                }
-                            }
-                        });
+                if (scrollTop + windowHeight > documentHeight - 150) {
+                    var status = $('#loading').val();
+                    if (status == 0){
+                        $('#loading').val(1);
+                        loadMore();
                     }
-                });
+                }
             });
         });
+
+        function loadMore() {
+            $.ajax({
+                type: 'post',
+                url: /*[[@{/classify/0}]]*/,
+                data: {
+                    pageNo: ++pageno,
+                    pageSize: 6,
+                },
+                dataType: "json",
+                success: function (result) {
+                    var data = result.data;
+                    var path = /*[[@{/}]]*/;
+                    if (data){
+                        var str = '';
+                        for (var i = 0; i < data.length; i++){
+                            var art = data[i];
+
+                            var main = '';
+                            if (art.resImg) {
+                                var imgPath = path +  'image/show/2018/' + art.resImg;
+                                main = '<div class="image" style="background-image: url(' + imgPath + ')"></div>';
+                            }else {
+                                main = ' <div class="bio" style="height: 234px">' + art.overview + ' &bullet;&bullet;&bullet; </div>'
+                            }
+
+                            var tagStr = "";
+                            var tag = art.tagList[0];
+                            if (tag){
+                                tagStr =  '<span class="category"> ' + art.tagList[0].name + ' </span>'
+                            }
+
+                            var artPath = path + 'article/' + art.id;
+                            str += '<div class="col-md-6">' +
+                                '            <a href="' + artPath + '" target="_blank" class="blog-entry element-animate fadeIn element-animated" data-animate-effect="fadeIn">' + main +
+                                '                <div class="blog-content-body">' +
+                                '                    <div class="post-meta">' + tagStr +
+                                '                        <span class="mr-2">' + art.createTime + '</span> &bullet;' +
+                                '                        <span class="ml-2"><span class="fa fa-eye"></span> ' + art.seeCount + '</span>' +
+                                '                    </div>' +
+                                '                    <h2>' + art.title + '</h2>' +
+                                '                </div>' +
+                                '            </a>' +
+                                '        </div>'
+                        }
+
+                        $('#article').append(str);
+                        $('#loading').val(0);
+                    }
+                }
+            });
+        }
     </script>
 </div>
 </body>
