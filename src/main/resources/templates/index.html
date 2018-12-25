@@ -50,7 +50,7 @@
         <div class="col-md-6" th:each="art: ${list}">
             <a th:href="@{/article/{id}(id = ${art.id})}" class="blog-entry element-animate" data-animate-effect="fadeIn">
                 <div th:if="${art.resImg != null}" class="image element-animate" data-animate-effect="fadeIn"
-                     th:style="'background-image: url(' + @{/image/show/2018/{img}(img = ${art.resImg})}  + ');'">
+                     th:style="'background-image: url(' + @{/image/show/2018/{img}?type=thumb(img = ${art.resImg})}  + ');'">
                 </div>
                 <div th:if="${art.resImg == null}" class="bio" style="height: 234px" data-animate-effect="fadeIn" th:text="${art.overview}"></div>
                 <div class="blog-content-body">

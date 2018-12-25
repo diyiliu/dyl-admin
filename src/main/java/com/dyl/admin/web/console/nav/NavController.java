@@ -114,7 +114,7 @@ public class NavController extends BaseController {
         // 抓取图片
         byte[] imgBytes = fetchICO(website.getUrl());
         if (imgBytes == null) {
-            website.setImage(0l);
+            website.setImage(1l);
         } else {
             website.setImage(saveImg(imgBytes));
         }

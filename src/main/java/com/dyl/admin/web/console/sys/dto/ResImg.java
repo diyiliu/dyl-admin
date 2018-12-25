@@ -22,6 +22,9 @@ public class ResImg {
 
     private String path;
 
+    /** 缩略图 **/
+    private String thumb;
+
     private Long userId;
 
     private Date createTime;

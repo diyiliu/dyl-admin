@@ -1,6 +1,7 @@
 package com.dyl.admin.web.console.blog;
 
 import com.dyl.admin.support.model.RespBody;
+import com.dyl.admin.web.BaseController;
 import com.dyl.admin.web.console.blog.dto.Article;
 import com.dyl.admin.web.console.blog.dto.Tag;
 import com.dyl.admin.web.console.blog.facade.ArticleJpa;
@@ -8,6 +9,7 @@ import com.dyl.admin.web.console.blog.facade.TagJpa;
 import com.dyl.admin.web.console.sys.dto.ResImg;
 import com.dyl.admin.web.console.sys.dto.SysUser;
 import com.dyl.admin.web.console.sys.facade.ResImgJpa;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.UrlResource;
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -29,16 +33,13 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/console/blog")
-public class BlogController {
+public class BlogController extends BaseController {
 
     @Resource
     private ArticleJpa articleJpa;
 
     @Resource
     private TagJpa tagJpa;
-
-    @Resource
-    private ResImgJpa resImgJpa;
 
     @PostMapping("/save")
     public RespBody save(Article article, HttpSession session) throws Exception {
@@ -84,7 +85,6 @@ public class BlogController {
     @PostMapping("/articles")
     public Map articleList(@RequestParam int pageNo, @RequestParam int pageSize,
                            @RequestParam(required = false) String search) {
-
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by(Sort.Direction.DESC, "updateTime"));
         Page<Article> userPage = articleJpa.findAll(pageable);
 
@@ -97,8 +97,19 @@ public class BlogController {
 
     @DeleteMapping("/article/{id}")
     public Integer deleteArticle(@PathVariable("id") long id) {
+        Article article = articleJpa.findById(id).get();
+        Long imgId = article.getResImg();
+
         articleJpa.deleteById(id);
         tagJpa.deleteByArticleId(id);
+        // 删除图片
+        try {
+            if (imgId != null){
+                deleteImg(imgId);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return 1;
     }
@@ -153,22 +164,36 @@ public class BlogController {
             for (Iterator<ResImg> iterator = imgList.iterator(); iterator.hasNext(); ) {
                 ResImg img = iterator.next();
                 long time = img.getCreateTime().getTime();
-                String path = "/image/show/" + time + "/" + img.getId();
+                String url = "/image/show/" + time + "/" + img.getId();
 
-                if (!content.contains(path)) {
-                    resImgJpa.deleteById(img.getId());
-
-                    org.springframework.core.io.Resource res = new UrlResource("file:" + img.getPath());
-                    if (res.exists()) {
-                        res.getFile().delete();
-                    }
+                if (!content.contains(url)) {
+                    // 删除图片
+                    deleteImg(img.getId());
                 } else {
                     if (imgView == null) {
-
                         imgView = img.getId();
+
+                        String path = img.getPath();
+                        // 创建缩略图
+                        org.springframework.core.io.Resource imgRes = new UrlResource("file:" + path);
+                        if (imgRes.exists()){
+                            String dir = environment.getProperty("upload.pic") + "thumb";
+                            org.springframework.core.io.Resource resDir = new UrlResource(dir);
+
+                            // 缩略图文件
+                            File tempFile = File.createTempFile("small", path.substring(path.lastIndexOf(".")).toLowerCase(), resDir.getFile());
+                            // 图片高度
+                            int height = 240;
+                            Thumbnails.of(imgRes.getFile().getPath()).height(height).toFile(tempFile.getPath());
+                            String thumbPath = tempFile.getPath();
+                            //保持纵横比，质量降低
+                            Thumbnails.of(thumbPath).scale(1).outputQuality(0.5).toFile(thumbPath);
+
+                            img.setThumb(thumbPath.replaceAll("\\\\", "/"));
+                            resImgJpa.save(img);
+                        }
                     }
                 }
-
                 iterator.remove();
             }
         }

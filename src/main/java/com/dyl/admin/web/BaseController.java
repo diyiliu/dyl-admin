@@ -5,6 +5,7 @@ import com.dyl.admin.web.console.sys.dto.SysUser;
 import com.dyl.admin.web.console.sys.facade.ResImgJpa;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
@@ -27,16 +28,19 @@ import java.util.Date;
 @Component
 public class BaseController {
 
+    @Resource
+    protected Environment environment;
+
+    @Resource
+    protected ResImgJpa resImgJpa;
+
     @Autowired
     protected HttpServletRequest request;
 
     @Autowired
     protected HttpSession session;
 
-    @Resource
-    private ResImgJpa resImgJpa;
-
-    protected ResImg uploadImg(MultipartFile file, String dir) throws Exception {
+    public ResImg uploadImg(MultipartFile file, String dir) throws Exception {
         org.springframework.core.io.Resource resDir = new UrlResource(dir);
         if (!resDir.getFile().exists()) {
             resDir.getFile().mkdir();
@@ -44,13 +48,13 @@ public class BaseController {
 
         String fileName = file.getOriginalFilename();
         // 创建临时文件
-        File tempFile = File.createTempFile("img", fileName.substring(fileName.lastIndexOf(".")).toLowerCase(), resDir.getFile());
+        File tempFile = File.createTempFile("normal", fileName.substring(fileName.lastIndexOf(".")).toLowerCase(), resDir.getFile());
         FileCopyUtils.copy(file.getBytes(), tempFile);
 
         return  save(tempFile);
     }
 
-    protected ResImg save(File file){
+    public ResImg save(File file){
         SysUser user = (SysUser) session.getAttribute("user");
         ResImg img = new ResImg();
 
@@ -61,20 +65,30 @@ public class BaseController {
         return  resImgJpa.save(img);
     }
 
-    protected void deleteImg(long id) throws IOException {
+    public void deleteImg(long id) throws IOException {
         if (id > 0){
             ResImg img = resImgJpa.findById(id).get();
 
-            String resPath = img.getPath();
-            org.springframework.core.io.Resource localRes = new UrlResource("file:" + resPath);
-            if (localRes.exists()) {
-                if (localRes.getFile().delete()) {
-                    log.info("删除文件[{}]成功!", img.getPath());
-                }else {
-                    log.error("删除文件[{}]失败!", img.getPath());
-                }
-            }
+            // 删除图片
+            String path = img.getPath();
+            deleteFile(path);
+            // 删除缩略图
+            String thumb = img.getThumb();
+            deleteFile(thumb);
+
+            // 删除数据库记录
             resImgJpa.delete(img);
+        }
+    }
+
+    private void deleteFile(String path) throws IOException{
+        org.springframework.core.io.Resource localRes = new UrlResource("file:" + path);
+        if (localRes.exists()) {
+            if (localRes.getFile().delete()) {
+                log.info("删除文件[{}]成功!", path);
+            }else {
+                log.error("删除文件[{}]失败!", path);
+            }
         }
     }
 }

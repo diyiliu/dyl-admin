@@ -192,11 +192,19 @@ public class BlogPortalController extends BaseController {
     }
 
     @GetMapping("/image/show/{time}/{id}")
-    public void showPicture(@PathVariable long id, @PathVariable String time, HttpServletResponse response) {
+    public void showPicture(@PathVariable long id, @PathVariable String time, @RequestParam(required = false) String type,HttpServletResponse response) {
         ResImg img = resImgJpa.findById(id).get();
         if (img != null) {
             try {
                 org.springframework.core.io.Resource imgRes = new UrlResource("file:" + img.getPath());
+                // 是否显示缩略图
+                if (StringUtils.isNotEmpty(type) && "thumb".equals(type)){
+                    org.springframework.core.io.Resource thumbRes = new UrlResource("file:" + img.getThumb());
+                    if (thumbRes.exists()){
+                        imgRes = thumbRes;
+                    }
+                }
+
                 if (imgRes != null && imgRes.exists()) {
                     response.setHeader("Content-Type", URLConnection.guessContentTypeFromName(imgRes.getFilename()));
                     FileCopyUtils.copy(imgRes.getInputStream(), response.getOutputStream());

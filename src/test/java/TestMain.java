@@ -1,5 +1,7 @@
+import net.coobird.thumbnailator.Thumbnails;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,5 +36,14 @@ public class TestMain {
             index = path.indexOf("\"");
             System.out.println(path.substring(0, index));
         }
+    }
+
+    @Test
+    public void test1()throws IOException {
+        String imagePath = "C:\\Users\\DIYILIU\\Desktop\\test\\4.jpg";
+        String outPath = "C:\\Users\\DIYILIU\\Desktop\\test\\44.jpg";
+
+        //保持纵横比，质量降低
+        Thumbnails.of(imagePath).scale(1).outputQuality(0.5).toFile(outPath);
     }
 }
