@@ -1,6 +1,7 @@
 package com.dyl.admin.web.console.blog.facade;
 
 import com.dyl.admin.web.console.blog.dto.Article;
+import com.dyl.admin.web.console.blog.dto.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,4 +24,6 @@ public interface ArticleJpa extends JpaRepository<Article, Long> {
     List<Article> findByStatusAndClassify_Id(int status, long id);
 
     Page<Article> findByStatusAndResImgIsNotNull(int status, Pageable pageable);
+
+    Page<Article> findByStatusAndTagListIn(int status, List<Tag> tags, Pageable pageable);
 }

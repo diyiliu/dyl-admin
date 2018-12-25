@@ -11,7 +11,7 @@
 
 <div layout:fragment="title" class="row mb-4">
     <div class="col-md-6">
-        <h2 class="mb-4" th:text="'#  ' + ${classify.name}"></h2>
+        <h2 class="mb-4" th:text="'#  ' + ${world}"></h2>
     </div>
 </div>
 <div layout:fragment="main" class="col-md-12 col-lg-8 main-content">
@@ -44,6 +44,7 @@
 </div>
 <div layout:fragment="pageJs">
     <script th:inline="javascript">
+        var total = /*[[${totalPages}]]*/;
         var pageno = 1;
         $(function () {
             $(window).scroll(function () {
@@ -53,7 +54,7 @@
 
                 if (scrollTop + windowHeight > documentHeight - 100) {
                     var status = $('#loading').val();
-                    if (status == 0) {
+                    if (status == 0 && pageno < total) {
                         $('#loading').val(1);
                         loadMore();
                     }
@@ -62,15 +63,26 @@
         });
 
         function loadMore() {
-            var path = /*[[@{/classify/}]]*/;
-            var clzId = /*[[${classify.id}]]*/;
+            var param = {
+                pageNo: ++pageno,
+                pageSize: 8
+            };
+
+            var url = /*[[@{/group/}]]*/;
+            var id = /*[[${key}]]*/;
+            var name = /*[[${world}]]*/;
+
+            if (id){
+                url += id;
+            } else {
+                url += 0;
+                param.tag = name;
+            }
+
             $.ajax({
                 type: 'post',
-                url: path + clzId,
-                data: {
-                    pageNo: ++pageno,
-                    pageSize: 5,
-                },
+                url: url,
+                data: param,
                 dataType: "json",
                 success: function (result) {
                     var data = result.data;

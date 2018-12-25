@@ -69,6 +69,7 @@
 </div>
 <div layout:fragment="pageJs">
     <script th:inline="javascript">
+        var total = /*[[${totalPages}]]*/;
         var pageno = 1;
         $(function () {
             $(window).scroll(function () {
@@ -78,7 +79,7 @@
 
                 if (scrollTop + windowHeight > documentHeight - 150) {
                     var status = $('#loading').val();
-                    if (status == 0){
+                    if (status == 0 && pageno < total){
                         $('#loading').val(1);
                         loadMore();
                     }
@@ -89,7 +90,7 @@
         function loadMore() {
             $.ajax({
                 type: 'post',
-                url: /*[[@{/classify/0}]]*/,
+                url: /*[[@{/group/0}]]*/,
                 data: {
                     pageNo: ++pageno,
                     pageSize: 6,

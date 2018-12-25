@@ -104,6 +104,7 @@ public class BlogPortalController extends BaseController {
         Pageable pageable = PageRequest.of(0, 6, Sort.by(Sort.Direction.DESC, "createTime"));
         Page<Article> articlePage = articleJpa.findByStatus(1, pageable);
         model.addAttribute("list", articlePage.getContent());
+        model.addAttribute("totalPages", articlePage.getTotalPages());
 
         return "index";
     }
@@ -116,10 +117,25 @@ public class BlogPortalController extends BaseController {
             return "redirect:/";
         }
 
-        model.addAttribute("classify", classify);
-        Pageable pageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createTime"));
+        model.addAttribute("key", id);
+        model.addAttribute("world", classify.getName());
+        Pageable pageable = PageRequest.of(0, 8, Sort.by(Sort.Direction.DESC, "createTime"));
         Page<Article> articlePage = articleJpa.findByStatusAndClassify_Id(1, id, pageable);
         model.addAttribute("list", articlePage.getContent());
+        model.addAttribute("totalPages", articlePage.getTotalPages());
+
+        return "blog/group";
+    }
+
+    @GetMapping("/tag/{name}")
+    public String tag(@PathVariable String name, Model model) {
+        List<Tag> tagList = tagJpa.findByName(name);
+
+        Pageable pageable = PageRequest.of(0, 8, Sort.by(Sort.Direction.DESC, "createTime"));
+        Page<Article> articlePage = articleJpa.findByStatusAndTagListIn(1, tagList, pageable);
+        model.addAttribute("list", articlePage.getContent());
+        model.addAttribute("world", name);
+        model.addAttribute("totalPages", articlePage.getTotalPages());
 
         return "blog/group";
     }
@@ -132,32 +148,27 @@ public class BlogPortalController extends BaseController {
         return "blog/article";
     }
 
-    @GetMapping("/tag/{name}")
-    public String tag(@PathVariable String name, Model model) {
-        List<Tag> tagList = tagJpa.findByName(name);
-        List<Long> ids = tagList.stream().map(Tag::getArticleId).distinct().collect(Collectors.toList());
-        List<Article> articleList = articleJpa.findAllById(ids);
-
-        model.addAttribute("articles", articleList);
-        model.addAttribute("tag", name);
-
-        return "blog/tag";
-    }
 
     @ResponseBody
-    @PostMapping("/classify/{id}")
-    public PageData classify(PageData pageData, @PathVariable long id) {
+    @PostMapping("/group/{id}")
+    public PageData group(PageData pageData, @PathVariable long id, @RequestParam(required = false) String tag) {
         Pageable pageable = PageRequest.of(pageData.getPageNo() - 1, pageData.getPageSize(), Sort.by(Sort.Direction.DESC, "createTime"));
 
         Page<Article> articlePage;
+        if (StringUtils.isNotEmpty(tag)){
+            List<Tag> tagList = tagJpa.findByName(tag);
+            articlePage  = articleJpa.findByStatusAndTagListIn(1, tagList, pageable);
+            pageData.setData(articlePage.getContent());
+
+            return pageData;
+        }
+
         // 首页内容
         if (id == 0) {
             articlePage = articleJpa.findByStatus(1, pageable);
         } else {
             articlePage = articleJpa.findByStatusAndClassify_Id(1, id, pageable);
         }
-
-        pageData.setTotal(articlePage.getTotalPages());
         pageData.setData(articlePage.getContent());
 
         return pageData;

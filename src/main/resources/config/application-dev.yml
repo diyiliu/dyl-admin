@@ -12,3 +12,10 @@ spring:
     url: 'jdbc:mysql://localhost:3306/dyl-admin?useUnicode=true&characterEncoding=UTF-8'
     username: root
     password: 123456
+
+  # JPA
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        #show_sql: true
