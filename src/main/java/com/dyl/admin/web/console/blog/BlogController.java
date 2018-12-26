@@ -10,6 +10,7 @@ import com.dyl.admin.web.console.sys.dto.ResImg;
 import com.dyl.admin.web.console.sys.dto.SysUser;
 import com.dyl.admin.web.console.sys.facade.ResImgJpa;
 import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.geometry.Positions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.UrlResource;
@@ -177,18 +178,16 @@ public class BlogController extends BaseController {
                         // 创建缩略图
                         org.springframework.core.io.Resource imgRes = new UrlResource("file:" + path);
                         if (imgRes.exists()){
+                            String imgPath = imgRes.getFile().getPath();
+
                             String dir = environment.getProperty("upload.pic") + "thumb";
                             org.springframework.core.io.Resource resDir = new UrlResource(dir);
-
                             // 缩略图文件
                             File tempFile = File.createTempFile("small", path.substring(path.lastIndexOf(".")).toLowerCase(), resDir.getFile());
-                            // 图片高度
-                            int height = 240;
-                            Thumbnails.of(imgRes.getFile().getPath()).height(height).toFile(tempFile.getPath());
                             String thumbPath = tempFile.getPath();
-                            //保持纵横比，质量降低
-                            Thumbnails.of(thumbPath).scale(1).outputQuality(0.5).toFile(thumbPath);
 
+                            // 剪切图片
+                            Thumbnails.of(imgPath).sourceRegion(Positions.TOP_LEFT, 350, 234).scale(1).toFile(thumbPath);
                             img.setThumb(thumbPath.replaceAll("\\\\", "/"));
                             resImgJpa.save(img);
                         }

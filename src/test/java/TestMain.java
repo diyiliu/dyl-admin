@@ -1,4 +1,5 @@
 import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.geometry.Positions;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -18,11 +19,11 @@ public class TestMain {
 
         System.out.println(str);
 
-        System.out.println(str.replaceAll("\\\\",  "/"));
+        System.out.println(str.replaceAll("\\\\", "/"));
     }
 
     @Test
-    public void test(){
+    public void test() {
 
         String str = "<link rel=\"canonical\" href=\"https://mvnrepository.com/\"/><link rel=\"shortcut icon\" type=\"image/x-icon\" href=\"/assets/images/7080b8b0f6f48e6fbaffd5f9d85fcc7f-favicon.ico\">";
 
@@ -39,11 +40,22 @@ public class TestMain {
     }
 
     @Test
-    public void test1()throws IOException {
-        String imagePath = "C:\\Users\\DIYILIU\\Desktop\\test\\4.jpg";
-        String outPath = "C:\\Users\\DIYILIU\\Desktop\\test\\44.jpg";
+    public void test1() throws IOException {
+        String imagePath = "C:\\Users\\DIYILIU\\Desktop\\test\\5.png";
+        String outPath = "C:\\Users\\DIYILIU\\Desktop\\test\\55.png";
 
         //保持纵横比，质量降低
-        Thumbnails.of(imagePath).scale(1).outputQuality(0.5).toFile(outPath);
+        // Thumbnails.of(imagePath).scale(1).outputQuality(0.5).toFile(outPath);
+
+        // 图片高度
+        Thumbnails.of(imagePath).size(350, 234).keepAspectRatio(false).toFile(outPath);
+    }
+
+    @Test
+    public void test2() throws IOException {
+        String imagePath = "C:\\Users\\DIYILIU\\Desktop\\test\\5.png";
+        String outPath = "C:\\Users\\DIYILIU\\Desktop\\test\\555.png";
+
+        Thumbnails.of(imagePath).sourceRegion(Positions.TOP_LEFT, 350, 234).scale(1).toFile(outPath);
     }
 }

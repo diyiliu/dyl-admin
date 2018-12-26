@@ -48,7 +48,7 @@ public class BaseController {
 
         String fileName = file.getOriginalFilename();
         // 创建临时文件
-        File tempFile = File.createTempFile("normal", fileName.substring(fileName.lastIndexOf(".")).toLowerCase(), resDir.getFile());
+        File tempFile = File.createTempFile("img", fileName.substring(fileName.lastIndexOf(".")).toLowerCase(), resDir.getFile());
         FileCopyUtils.copy(file.getBytes(), tempFile);
 
         return  save(tempFile);
