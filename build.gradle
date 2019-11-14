@@ -85,6 +85,10 @@ task copyJars(type: Copy) {
     into 'dist'
 }
 
+jar {
+    baseName = 'dyl-admin'
+    version = ''
+}
 bootJar {
     baseName = 'dyl-admin'
     version = ''
@@ -108,7 +112,7 @@ bootJar {
 //    }
 }
 
-task buildDocker(type: Docker, dependsOn: bootJar) {
+task buildDocker(type: Docker, dependsOn: build) {
     push = false
     project.group = 'dyl'
     applicationName = jar.baseName
