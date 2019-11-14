@@ -1,12 +1,12 @@
 # https://docs.spring.io/spring-boot/docs/2.1.0.RELEASE/reference/htmlsingle/#common-application-properties
 server:
   tomcat:
-    basedir: ${user.dir}/temp
+    basedir: ${user.dir}/tmp
 
 # SPRING
 spring:
   profiles:
-    active: dev
+    active: prod
 
   servlet:
     multipart:

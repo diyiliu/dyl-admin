@@ -57,5 +57,8 @@ public class TestMain {
         String outPath = "C:\\Users\\DIYILIU\\Desktop\\test\\555.png";
 
         Thumbnails.of(imagePath).sourceRegion(Positions.TOP_LEFT, 350, 234).scale(1).toFile(outPath);
+
+        //保持纵横比，质量降低
+//        Thumbnails.of(imagePath).scale(1).outputQuality(0.5).toFile(outPath);
     }
 }

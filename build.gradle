@@ -4,6 +4,7 @@ version '1.0'
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'docker'
 
 sourceCompatibility = 1.8
 
@@ -53,47 +54,10 @@ dependencies {
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
     compile group: 'org.projectlombok', name: 'lombok', version: '1.16.20'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-
     // 图片处理
     compile group: 'net.coobird', name: 'thumbnailator', version: '0.4.8'
 
-
     testCompile group: 'junit', name: 'junit', version: '4.12'
-}
-
-tasks.withType(JavaCompile) {
-    options.encoding = "UTF-8"
-}
-
-bootJar {
-    baseName = 'dyl-admin'
-    version = ''
-
-    manifest {
-        attributes(
-                'Class-Path': 'lib/' + configurations.compile.collect {
-                    it.name
-                }.join(' lib/')
-        )
-    }
-
-    // 只打包自身文件，过滤第三方依赖
-    include{
-        it.file.path.contains('build\\classes') ||
-                it.file.path.contains('build\\resources')
-    }
-
-//    exclude{
-//        it.file.path.contains('.gradle')
-//        println it.file.path
-//        return false
-//    }
-}
-
-// 拷贝文件
-task copyJars(type: Copy) {
-    from configurations.runtime
-    into 'dist'
 }
 
 buildscript {
@@ -107,5 +71,53 @@ buildscript {
 
     dependencies {
         classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.1.0.BUILD-SNAPSHOT'
+        classpath 'se.transmode.gradle:gradle-docker:1.2'
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+// 拷贝文件
+task copyJars(type: Copy) {
+    from configurations.runtime
+    into 'dist'
+}
+
+bootJar {
+    baseName = 'dyl-admin'
+    version = ''
+
+    // 只打包自身文件，过滤第三方依赖
+//    manifest {
+//        attributes(
+//                'Class-Path': 'lib/' + configurations.compile.collect {
+//                    it.name
+//                }.join(' lib/')
+//        )
+//    }
+//    include{
+//        it.file.path.contains('build\\classes') ||
+//                it.file.path.contains('build\\resources')
+//    }
+//    exclude{
+//        it.file.path.contains('.gradle')
+//        println it.file.path
+//        return false
+//    }
+}
+
+task buildDocker(type: Docker, dependsOn: bootJar) {
+    push = false
+    project.group = 'dyl'
+    applicationName = jar.baseName
+    tagVersion = jar.version
+    dockerfile = file('./Dockerfile')
+    doFirst {
+        copy {
+            from jar
+            into stageDir
+        }
     }
 }
