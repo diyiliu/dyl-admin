@@ -20,6 +20,8 @@ public class TestMain {
         System.out.println(str);
 
         System.out.println(str.replaceAll("\\\\", "/"));
+
+        System.out.println("武汉加油");
     }
 
     @Test
