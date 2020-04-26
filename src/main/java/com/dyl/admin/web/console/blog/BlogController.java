@@ -55,7 +55,6 @@ public class BlogController extends BaseController {
             article.setSeeCount(0);
             article.setCreateTime(new Date());
             article.setUpdateTime(new Date());
-            temp = articleJpa.save(article);
         } else {
             long id = article.getId();
             temp = articleJpa.findById(id).get();
@@ -66,8 +65,8 @@ public class BlogController extends BaseController {
             article.setUpdateTime(new Date());
             article.setSeeCount(temp.getSeeCount());
             article.setResImg(resImg == null ? temp.getResImg() : resImg);
-            temp = articleJpa.save(article);
         }
+        temp = articleJpa.save(article);
         RespBody respBody = new RespBody();
         // 操作失败
         if (temp == null) {

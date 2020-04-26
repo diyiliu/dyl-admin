@@ -9,8 +9,6 @@ apply plugin: 'docker'
 sourceCompatibility = 1.8
 
 repositories {
-    mavenLocal()
-    mavenCentral()
     jcenter()
     maven { url "https://repo.spring.io/snapshot" }
     maven { url "https://repo.spring.io/milestone" }
@@ -65,8 +63,6 @@ dependencies {
 
 buildscript {
     repositories {
-        mavenLocal()
-        mavenCentral()
         jcenter()
         maven { url 'https://repo.spring.io/snapshot' }
         maven { url 'https://repo.spring.io/milestone' }

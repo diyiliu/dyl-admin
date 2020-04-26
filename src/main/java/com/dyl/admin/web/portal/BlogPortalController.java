@@ -193,8 +193,9 @@ public class BlogPortalController extends BaseController {
 
     @GetMapping("/image/show/{time}/{id}")
     public void showPicture(@PathVariable long id, @PathVariable String time, @RequestParam(required = false) String type,HttpServletResponse response) {
-        ResImg img = resImgJpa.findById(id).get();
-        if (img != null) {
+        Optional<ResImg> imgOptional = resImgJpa.findById(id);
+        if (imgOptional.isPresent()) {
+            ResImg img = imgOptional.get();
             try {
                 org.springframework.core.io.Resource imgRes = new UrlResource("file:" + img.getPath());
                 // 是否显示缩略图
